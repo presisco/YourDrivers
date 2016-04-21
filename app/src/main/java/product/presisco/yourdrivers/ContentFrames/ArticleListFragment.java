@@ -8,6 +8,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,6 +31,8 @@ import product.presisco.yourdrivers.R;
 public class ArticleListFragment extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
+    private static final String TAG = ArticleListFragment.class.getSimpleName();
+
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
     ArticleListAdapter mArticleListAdapter;
@@ -40,6 +43,7 @@ public class ArticleListFragment extends Fragment {
     private String mParam1;
     private String mParam2;
     private OnFragmentInteractionListener mListener;
+    private boolean isFirstLaunch = true;
 
     public ArticleListFragment() {
         // Required empty public constructor
@@ -70,6 +74,9 @@ public class ArticleListFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+        if (savedInstanceState != null) {
+            isFirstLaunch = false;
+        }
     }
 
     @Override
@@ -91,6 +98,12 @@ public class ArticleListFragment extends Fragment {
         mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.mainSwipeRefresh);
         mSwipeRefreshLayout.setColorSchemeResources(R.color.material_light_blue_500, R.color.material_red_500);
         mSwipeRefreshLayout.setOnRefreshListener(new OnRefresh());
+
+        new GetTopics().setOnLoadCompleteListener(new OnFetchComplete()).execute();
+
+        if (isFirstLaunch) {
+            mSwipeRefreshLayout.setRefreshing(true);
+        }
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -106,8 +119,7 @@ public class ArticleListFragment extends Fragment {
         if (context instanceof OnFragmentInteractionListener) {
             mListener = (OnFragmentInteractionListener) context;
         } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
+            Log.d(TAG, "parent doesnt implement OnFragmentInteractionListener");
         }
     }
 
@@ -135,14 +147,17 @@ public class ArticleListFragment extends Fragment {
     private class OnRefresh implements SwipeRefreshLayout.OnRefreshListener {
         @Override
         public void onRefresh() {
-
+            new GetTopics().setOnLoadCompleteListener(new OnFetchComplete()).execute();
         }
     }
 
     private class OnFetchComplete implements GetTopics.OnLoadCompleteListener {
         @Override
         public void onLoadComplete(List<Topic> src) {
-
+            mTopics = src;
+            mArticleListAdapter.setDataSrc(mTopics);
+            mArticleListAdapter.notifyDataSetChanged();
+            mSwipeRefreshLayout.setRefreshing(false);
         }
     }
 

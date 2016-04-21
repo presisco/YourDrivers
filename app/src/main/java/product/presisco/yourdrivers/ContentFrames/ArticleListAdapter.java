@@ -4,6 +4,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,13 +44,15 @@ public class ArticleListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-
+        if (holder instanceof ContentViewHolder) {
+            ((ContentViewHolder) holder).mTitle.setText(mContents.get(position).title);
+        }
     }
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.list_item_news, parent, false);
+                .inflate(R.layout.cardview_topics, parent, false);
         return new ContentViewHolder(v);
     }
 
@@ -60,8 +63,11 @@ public class ArticleListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     }
 
     private static class ContentViewHolder extends RecyclerView.ViewHolder {
+        public final TextView mTitle;
+
         public ContentViewHolder(View itemView) {
             super(itemView);
+            mTitle = (TextView) itemView.findViewById(R.id.textTitle);
         }
     }
 
