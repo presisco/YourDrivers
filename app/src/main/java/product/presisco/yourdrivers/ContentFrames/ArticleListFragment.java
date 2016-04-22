@@ -99,7 +99,7 @@ public class ArticleListFragment extends Fragment {
         mSwipeRefreshLayout.setColorSchemeResources(R.color.material_light_blue_500, R.color.material_red_500);
         mSwipeRefreshLayout.setOnRefreshListener(new OnRefresh());
 
-        new GetTopics().setOnLoadCompleteListener(new OnFetchComplete()).execute();
+        new GetTopics().execute();
 
         if (isFirstLaunch) {
             mSwipeRefreshLayout.setRefreshing(true);

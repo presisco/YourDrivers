@@ -8,6 +8,11 @@ import android.util.Xml;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.DocumentType;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -26,7 +31,6 @@ import product.presisco.yourdrivers.Network.Utils;
  * Created by presisco on 2016/4/20.
  */
 public class GetTopics extends AsyncTask<Void, Void, List<Topic>> {
-    private static final String PATH = "/api/2/contents/newstoppic";
     private OnLoadCompleteListener mOnLoadCompleteListener;
 
     public GetTopics setOnLoadCompleteListener(OnLoadCompleteListener l) {
@@ -38,26 +42,20 @@ public class GetTopics extends AsyncTask<Void, Void, List<Topic>> {
     protected List<Topic> doInBackground(Void... params) {
         List<Topic> topics = new ArrayList<>();
         try {
-            List<Pair> get_params = new ArrayList<>();
-            get_params.add(new Pair("id", System.currentTimeMillis() + ""));
-            HttpURLConnection connection = (HttpURLConnection)
-                    //new URL(Constants.HOST + "/api/2/contents/newstoppic" + "?" + "id=" + System.currentTimeMillis()).openConnection();
-                    Utils.getURLWithParams(Constants.HOST + PATH, get_params).openConnection();
-            connection.setReadTimeout(5000);
-            connection.setConnectTimeout(5000);
-            connection.setRequestMethod("GET");
-            connection.setDoInput(true);
-            connection.connect();
-            if (connection.getResponseCode() != 200) {
-
-            }
-            String result = Utils.getFullStringFromConnection(connection.getInputStream(), "UTF-8");
-            Log.d("GetTopics", result);
-            Gson gson = new Gson();
-            topics = gson.fromJson(result, new TypeToken<ArrayList<Topic>>() {
-            }.getType());
-            for (Topic topic : topics) {
-                Log.d("Parced", "title:" + topic.title);
+            Document doc = Jsoup.parse(new URL(Constants.MOBILE_WEB_HOST), 5000);
+            Elements eles = doc.getElementById("mynewslist").children();
+            for (Element ele : eles) {
+                String display = "";
+                if (ele.hasAttr("data-id")) {
+                    display += "data-id:" + ele.attributes().get("data-id") + " ";
+                } else if (ele.child(0).tagName() == "script") {
+                    display += "a script";
+                } else if (ele.hasAttr("id")) {
+                    display += "id:" + ele.attributes().get("id") + " is ad";
+                } else {
+                    display += "is top msg";
+                }
+                Log.d("Jsoup", display);
             }
         } catch (Exception e) {
             e.printStackTrace();
