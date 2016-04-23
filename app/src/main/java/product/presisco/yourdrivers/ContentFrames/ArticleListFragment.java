@@ -99,7 +99,7 @@ public class ArticleListFragment extends Fragment {
         mSwipeRefreshLayout.setColorSchemeResources(R.color.material_light_blue_500, R.color.material_red_500);
         mSwipeRefreshLayout.setOnRefreshListener(new OnRefresh());
 
-        new GetTopics().execute();
+        refreshContent();
 
         if (isFirstLaunch) {
             mSwipeRefreshLayout.setRefreshing(true);
@@ -129,6 +129,10 @@ public class ArticleListFragment extends Fragment {
         mListener = null;
     }
 
+    private void refreshContent() {
+        new GetTopics().setOnLoadCompleteListener(new OnFetchComplete()).execute();
+    }
+
     /**
      * This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated
@@ -147,7 +151,7 @@ public class ArticleListFragment extends Fragment {
     private class OnRefresh implements SwipeRefreshLayout.OnRefreshListener {
         @Override
         public void onRefresh() {
-            new GetTopics().setOnLoadCompleteListener(new OnFetchComplete()).execute();
+            refreshContent();
         }
     }
 

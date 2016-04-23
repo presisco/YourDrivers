@@ -52,7 +52,7 @@ public class ArticleListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.cardview_topics, parent, false);
+                .inflate(R.layout.cardview_topic, parent, false);
         return new ContentViewHolder(v);
     }
 

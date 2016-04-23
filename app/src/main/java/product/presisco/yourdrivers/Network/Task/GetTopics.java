@@ -31,7 +31,37 @@ import product.presisco.yourdrivers.Network.Utils;
  * Created by presisco on 2016/4/20.
  */
 public class GetTopics extends AsyncTask<Void, Void, List<Topic>> {
+    private static final String CLASSNAME_TOP = "zhiding bor_sy_2";
+    private static final String CLASSNAME_TITLE = "newst";
+    private static final String CLASSNAME_INTRO = "newsin";
+    private static final String CLASSNAME_ICON = "newsimg";
+    private static final String CLASSNAME_ICONS = "newsimg1";
+    private static final String CLASSNAME_TOPIC = "newstnopic";
+    private static final String CLASSNAME_TNAME = "tname";
+    private static final String CLASSNAME_TTIME = "ttime";
+    private static final String CLASSNAME_COMMENT = "tpinglun";
+    private static final String ATTR_DATA_ID = "data-id";
+
+    private static final String VALUE_AD = "推广";
+    private static final String VALUE_TOP = "置顶";
+
     private OnLoadCompleteListener mOnLoadCompleteListener;
+
+    private static String getRefLinkFromST(Element ele) {
+        return ele.child(0).attr(Constants.ATTR_LINK);
+    }
+
+    private static String getTitleFromST(Element ele) {
+        return ele.child(0).text();
+    }
+
+    private static List<String> getIconsFromIMG(Element ele) {
+        List<String> icons = new ArrayList<>();
+        for (Element img : ele.child(0).children()) {
+            icons.add(img.attr("src"));
+        }
+        return icons;
+    }
 
     public GetTopics setOnLoadCompleteListener(OnLoadCompleteListener l) {
         mOnLoadCompleteListener = l;
@@ -46,16 +76,57 @@ public class GetTopics extends AsyncTask<Void, Void, List<Topic>> {
             Elements eles = doc.getElementById("mynewslist").children();
             for (Element ele : eles) {
                 String display = "";
-                if (ele.hasAttr("data-id")) {
-                    display += "data-id:" + ele.attributes().get("data-id") + " ";
-                } else if (ele.child(0).tagName() == "script") {
-                    display += "a script";
-                } else if (ele.hasAttr("id")) {
-                    display += "id:" + ele.attributes().get("id") + " is ad";
+                Topic topic = new Topic();
+                Elements childs = ele.children();
+                if (childs.size() > 3) {
+                    if (childs.get(3).text().equals(VALUE_AD)) {
+                        Log.d("Parse", "Dump ad");
+                        continue;
+                    }
+                    String value_top = childs.get(3).text();
+                    topic.id = "0";
+                    Element tmp = ele.getElementsByClass(CLASSNAME_TITLE).first();
+                    topic.link = getRefLinkFromST(tmp);
+                    topic.title = getTitleFromST(tmp);
+                    topic.icon = getIconsFromIMG(ele.getElementsByClass(CLASSNAME_ICON).first());
+                    topic.date = null;
+                    topic.isTop = true;
+                    topic.writer = "";
+                    topics.add(topic);
+                } else if (ele.hasAttr(ATTR_DATA_ID)) {
+                    Element tmp;
+                    topic.isTop = false;
+                    topic.id = ele.attr(ATTR_DATA_ID);
+                    if (childs.hasClass(CLASSNAME_TOPIC)) {
+                        tmp = ele.getElementsByClass(CLASSNAME_TOPIC).first();
+                    } else {
+                        tmp = ele.getElementsByClass(CLASSNAME_TITLE).first();
+                    }
+                    topic.link = getRefLinkFromST(tmp);
+                    topic.title = getTitleFromST(tmp);
+                    if (childs.hasClass(CLASSNAME_ICON)) {
+                        topic.icon = getIconsFromIMG(ele.getElementsByClass(CLASSNAME_ICON).first());
+                    }
+                    if (childs.hasClass(CLASSNAME_ICONS)) {
+                        topic.icon = getIconsFromIMG(ele.getElementsByClass(CLASSNAME_ICONS).first());
+                    }
+                    topic.writer = ele.getElementsByClass(CLASSNAME_TNAME).text();
+                    topic.date = Topic.getDateFromRelative(ele.getElementsByClass(CLASSNAME_TTIME).text());
+                    tmp = ele.getElementsByClass(CLASSNAME_COMMENT).first().child(0);
+                    topic.comment_link = tmp.attr(Constants.ATTR_LINK);
+                    topic.comments_count = tmp.text();
+                    topics.add(topic);
                 } else {
-                    display += "is top msg";
+                    Log.d("Parse", "unrecognized content");
+                    continue;
                 }
-                Log.d("Jsoup", display);
+
+                if (topic.isTop) {
+                    display = topic.title;
+                } else {
+                    display = topic.id + "/" + topic.title;
+                }
+                Log.d("Parse", display);
             }
         } catch (Exception e) {
             e.printStackTrace();

@@ -2,7 +2,7 @@
 <resources>
     <color name="default_card_background">#e0e0e0</color>
 
-    <style name="CardView.News" parent="Base.CardView">
+    <style name="CardView.Topic" parent="Base.CardView">
         <item name="android:gravity">center</item>
         <item name="android:layout_margin">2dp</item>
         <item name="cardCornerRadius">2dp</item>
