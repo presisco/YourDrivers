@@ -30,7 +30,8 @@ import product.presisco.yourdrivers.Network.Utils;
 /**
  * Created by presisco on 2016/4/20.
  */
-public class GetTopics extends AsyncTask<Void, Void, List<Topic>> {
+public class GetTopics extends AsyncTask<String, Void, List<Topic>> {
+    public static final String MODE_GET_MORE = "get_more";
     private static final String CLASSNAME_TOP = "zhiding bor_sy_2";
     private static final String CLASSNAME_TITLE = "newst";
     private static final String CLASSNAME_INTRO = "newsin";
@@ -40,6 +41,7 @@ public class GetTopics extends AsyncTask<Void, Void, List<Topic>> {
     private static final String CLASSNAME_TNAME = "tname";
     private static final String CLASSNAME_TTIME = "ttime";
     private static final String CLASSNAME_COMMENT = "tpinglun";
+    private static final String CLASSNAME_NEWSLIST = "mynewslist";
     private static final String ATTR_DATA_ID = "data-id";
 
     private static final String VALUE_AD = "推广";
@@ -68,12 +70,30 @@ public class GetTopics extends AsyncTask<Void, Void, List<Topic>> {
         return this;
     }
 
+    /**
+     * Load contents from host
+     *
+     * @param params params[0] for Tid and params[1] for minid
+     * @return
+     */
+
     @Override
-    protected List<Topic> doInBackground(Void... params) {
+    protected List<Topic> doInBackground(String... params) {
         List<Topic> topics = new ArrayList<>();
         try {
-            Document doc = Jsoup.parse(new URL(Constants.MOBILE_WEB_HOST), 5000);
-            Elements eles = doc.getElementById("mynewslist").children();
+            Document doc = null;
+            Elements eles = null;
+            if (params.length == 2) {
+                List<Pair> url_params = new ArrayList<>();
+                url_params.add(new Pair("Tid", params[0]));
+                url_params.add(new Pair("type", "1"));
+                url_params.add(new Pair("minid", params[1]));
+                doc = Jsoup.parse(Utils.getURLWithParams(Constants.MOBILE_WEB_HOST + Constants.MOBILE_GET_MORE_LIST, url_params), 5000);
+                eles = doc.getElementsByTag("body").first().children();
+            } else {
+                doc = Jsoup.parse(new URL(Constants.MOBILE_WEB_HOST), 5000);
+                eles = doc.getElementById(CLASSNAME_NEWSLIST).children();
+            }
             for (Element ele : eles) {
                 String display = "";
                 Topic topic = new Topic();
@@ -83,7 +103,6 @@ public class GetTopics extends AsyncTask<Void, Void, List<Topic>> {
                         Log.d("Parse", "Dump ad");
                         continue;
                     }
-                    String value_top = childs.get(3).text();
                     topic.id = "0";
                     Element tmp = ele.getElementsByClass(CLASSNAME_TITLE).first();
                     topic.link = getRefLinkFromST(tmp);

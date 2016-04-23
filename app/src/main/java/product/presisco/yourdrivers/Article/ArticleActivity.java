@@ -8,6 +8,10 @@ import product.presisco.yourdrivers.Network.Task.GetAritcle;
 import product.presisco.yourdrivers.R;
 
 public class ArticleActivity extends AppCompatActivity {
+    public static final String TAG = ArticleActivity.class.getSimpleName();
+    public static final String SRC_ADDR = "src_addr";
+
+    String src_addr = "";
     WebView webView;
 
     @Override
@@ -15,6 +19,8 @@ public class ArticleActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_article);
         webView = (WebView) findViewById(R.id.webView);
+        src_addr = getIntent().getStringExtra(SRC_ADDR);
+        new GetAritcle().setOnLoadCompleteListener(new OnLoadComplete()).execute(src_addr);
     }
 
     private class OnLoadComplete implements GetAritcle.OnLoadCompleteListener {

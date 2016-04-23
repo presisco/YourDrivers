@@ -51,8 +51,9 @@ public class GetAritcle extends AsyncTask<String, Void, String> {
         super.onProgressUpdate(values);
     }
 
-    public void setOnLoadCompleteListener(OnLoadCompleteListener l) {
+    public GetAritcle setOnLoadCompleteListener(OnLoadCompleteListener l) {
         mListener = l;
+        return this;
     }
 
     public interface OnLoadCompleteListener {

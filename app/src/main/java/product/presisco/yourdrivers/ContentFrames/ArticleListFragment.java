@@ -1,6 +1,7 @@
 package product.presisco.yourdrivers.ContentFrames;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -16,7 +17,9 @@ import android.view.ViewGroup;
 import java.util.ArrayList;
 import java.util.List;
 
+import product.presisco.yourdrivers.Article.ArticleActivity;
 import product.presisco.yourdrivers.DataModel.Topic;
+import product.presisco.yourdrivers.Network.Constants;
 import product.presisco.yourdrivers.Network.Task.GetTopics;
 import product.presisco.yourdrivers.R;
 
@@ -35,6 +38,7 @@ public class ArticleListFragment extends Fragment {
 
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
+    private static final String ARG_TID = "tid";
     ArticleListAdapter mArticleListAdapter;
     RecyclerView mArticleList;
     SwipeRefreshLayout mSwipeRefreshLayout;
@@ -44,6 +48,8 @@ public class ArticleListFragment extends Fragment {
     private String mParam2;
     private OnFragmentInteractionListener mListener;
     private boolean isFirstLaunch = true;
+    private boolean isRefresh = true;
+    private String tid = "0";
 
     public ArticleListFragment() {
         // Required empty public constructor
@@ -91,7 +97,8 @@ public class ArticleListFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         mArticleList = (RecyclerView) view.findViewById(R.id.mainList);
         mArticleList.setLayoutManager(new LinearLayoutManager(getContext()));
-        mArticleListAdapter = new ArticleListAdapter();
+        mArticleListAdapter = new ArticleListAdapter(new OnTopicClickedListener(),
+                new OnAppendListener());
         mArticleListAdapter.setDataSrc(mTopics);
         mArticleList.setAdapter(mArticleListAdapter);
 
@@ -129,8 +136,9 @@ public class ArticleListFragment extends Fragment {
         mListener = null;
     }
 
-    private void refreshContent() {
-        new GetTopics().setOnLoadCompleteListener(new OnFetchComplete()).execute();
+    private void refreshContent(String... params) {
+        mSwipeRefreshLayout.setRefreshing(true);
+        new GetTopics().setOnLoadCompleteListener(new OnFetchComplete()).execute(params);
     }
 
     /**
@@ -151,6 +159,7 @@ public class ArticleListFragment extends Fragment {
     private class OnRefresh implements SwipeRefreshLayout.OnRefreshListener {
         @Override
         public void onRefresh() {
+            isRefresh = true;
             refreshContent();
         }
     }
@@ -158,22 +167,34 @@ public class ArticleListFragment extends Fragment {
     private class OnFetchComplete implements GetTopics.OnLoadCompleteListener {
         @Override
         public void onLoadComplete(List<Topic> src) {
-            mTopics = src;
+            if (mTopics.size() == 0) {
+                mTopics = src;
+            } else if (isRefresh) {
+                mTopics = src;
+            } else {
+                mTopics.addAll(mTopics.size(), src);
+            }
             mArticleListAdapter.setDataSrc(mTopics);
             mArticleListAdapter.notifyDataSetChanged();
             mSwipeRefreshLayout.setRefreshing(false);
         }
     }
 
-    private class OnDifferentStates implements ArticleListAdapter.OnDifferentStateListener {
+    private class OnTopicClickedListener implements ArticleListAdapter.OnContentItemClickedListener {
         @Override
-        public void onItemClicked(int pos) {
-
+        public void onContentItemClicked(int pos) {
+            Log.d(TAG, "selected topic:" + mTopics.get(pos).id + "/" + mTopics.get(pos).title + "/" + mTopics.get(pos).link);
+            String addr = Constants.MOBILE_WEB_HOST + mTopics.get(pos).link;
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(addr));
+            startActivity(intent);
         }
+    }
 
+    private class OnAppendListener implements ArticleListAdapter.OnFooterShowedListener {
         @Override
         public void onFooterShowed() {
-
+            isRefresh = false;
+            refreshContent(new String[]{tid, mTopics.get(mTopics.size() - 1).id});
         }
     }
 }
