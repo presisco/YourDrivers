@@ -18,6 +18,8 @@ import product.presisco.yourdrivers.Preference.SettingsActivity;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
+    ViewPointListFragment mViewPointListFragment;
+    TopicListFragment mTopicListFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,8 +39,12 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         getSupportActionBar().setTitle(ViewPointListFragment.TITLE_TEXT);
+
+        mViewPointListFragment = ViewPointListFragment.newInstance();
+        mTopicListFragment = TopicListFragment.newInstance("", "");
+
         FragmentTransaction trans = getSupportFragmentManager().beginTransaction();
-        trans.replace(R.id.contentFrame, ViewPointListFragment.newInstance());
+        trans.replace(R.id.contentFrame, mViewPointListFragment);
         trans.commit();
     }
 
@@ -84,17 +90,17 @@ public class MainActivity extends AppCompatActivity
             case R.id.nav_settings:
                 startActivity(new Intent(this, SettingsActivity.class));
                 break;
-            case R.id.nav_share:
-                break;
             case R.id.nav_viewpoint:
                 getSupportActionBar().setTitle(ViewPointListFragment.TITLE_TEXT);
-                trans.replace(R.id.contentFrame, ViewPointListFragment.newInstance());
+                trans.replace(R.id.contentFrame, mViewPointListFragment);
                 trans.commit();
                 break;
             case R.id.nav_topics:
                 getSupportActionBar().setTitle(TopicListFragment.TITLE_TEXT);
-                trans.replace(R.id.contentFrame, TopicListFragment.newInstance("", ""));
+                trans.replace(R.id.contentFrame, mTopicListFragment);
                 trans.commit();
+                break;
+            case R.id.nav_about:
                 break;
         }
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

@@ -11,15 +11,15 @@
         <ImageView
             android:id="@+id/iconView"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="180dp" />
 
         <TextView
             android:id="@+id/textTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/iconView"
-            android:text="New Text"
-            android:textSize="@dimen/size_text_large" />
+            android:text="ASDFGHJKL"
+            android:textSize="@dimen/size_text_medium" />
 
     </RelativeLayout>
 

@@ -32,23 +32,16 @@ import product.presisco.yourdrivers.R;
  */
 public class TopicListFragment extends Fragment {
     public static final String TITLE_TEXT = "Topics";
-    // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String TAG = TopicListFragment.class.getSimpleName();
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-    private static final String ARG_TID = "tid";
     TopicListAdapter mTopicListAdapter;
     RecyclerView mArticleList;
     SwipeRefreshLayout mSwipeRefreshLayout;
     List<Topic> mTopics = new ArrayList<>();
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-    private OnFragmentInteractionListener mListener;
     private boolean isFirstLaunch = true;
     private boolean isRefresh = true;
     private String tid = "0";
+    private int currentPosition = 0;
 
     public TopicListFragment() {
         // Required empty public constructor
@@ -65,20 +58,19 @@ public class TopicListFragment extends Fragment {
     // TODO: Rename and change types and number of parameters
     public static TopicListFragment newInstance(String param1, String param2) {
         TopicListFragment fragment = new TopicListFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
         return fragment;
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        Log.d(TAG, "onAttach");
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
+        Log.d(TAG, "onCreate");
         if (savedInstanceState != null) {
             isFirstLaunch = false;
         }
@@ -88,12 +80,14 @@ public class TopicListFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
+        Log.d(TAG, "onCreateView");
         return inflater.inflate(R.layout.fragment_article_list, container, false);
     }
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        Log.d(TAG, "onViewCreated");
         mArticleList = (RecyclerView) view.findViewById(R.id.mainList);
         mArticleList.setLayoutManager(new LinearLayoutManager(getContext()));
         mTopicListAdapter = new TopicListAdapter(new OnTopicClickedListener(),
@@ -119,32 +113,40 @@ public class TopicListFragment extends Fragment {
         }
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
+    @Override
+    public void onStart() {
+        super.onStart();
+        Log.d(TAG, "onStart");
     }
 
     @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
-        } else {
-            Log.d(TAG, "parent doesnt implement OnFragmentInteractionListener");
-        }
+    public void onResume() {
+        super.onResume();
+        Log.d(TAG, "onResume");
     }
 
     @Override
-    public void onDetach() {
-        super.onDetach();
-        mListener = null;
+    public void onPause() {
+        super.onPause();
+        Log.d(TAG, "onPause");
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        Log.d(TAG, "onStop");
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        Log.d(TAG, "onDestroyView");
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
+        Log.d(TAG, "onSaveInstanceState");
     }
 
     private void refreshContent(String... params) {
