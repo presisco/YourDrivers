@@ -11,7 +11,7 @@ public class Topic implements Serializable {
     public String id;
     public String link;
     public String title;
-    public List<String> icon;
+    public String[] icon;
     public String comments_count;
     public String comment_link;
     public Date date;
@@ -22,7 +22,7 @@ public class Topic implements Serializable {
 
     }
 
-    public Topic(String _id, String _link, String _title, List<String> _icon, String fromNow, String _comments_count, boolean _isTop, String _writer) {
+    public Topic(String _id, String _link, String _title, String[] _icon, String fromNow, String _comments_count, boolean _isTop, String _writer) {
         id = _id;
         link = _link;
         title = _title;

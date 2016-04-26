@@ -3,35 +3,30 @@ package product.presisco.yourdrivers.Network.Task;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.util.Pair;
-import android.util.Xml;
-
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.DocumentType;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
+import product.presisco.yourdrivers.DataModel.NavType;
+import product.presisco.yourdrivers.DataModel.SubNavType;
 import product.presisco.yourdrivers.DataModel.Topic;
+import product.presisco.yourdrivers.DataModel.Viewpoint;
 import product.presisco.yourdrivers.Network.Constants;
 import product.presisco.yourdrivers.Network.Utils;
 
 /**
  * Created by presisco on 2016/4/20.
  */
-public class GetTopics extends AsyncTask<String, Void, List<Topic>> {
+public class GetTopics extends AsyncTask<String, Void, Integer> {
     public static final String MODE_GET_MORE = "get_more";
+    public static final String MODE_REFRESH = "refresh";
     private static final String CLASSNAME_TOP = "zhiding bor_sy_2";
     private static final String CLASSNAME_TITLE = "newst";
     private static final String CLASSNAME_INTRO = "newsin";
@@ -41,13 +36,25 @@ public class GetTopics extends AsyncTask<String, Void, List<Topic>> {
     private static final String CLASSNAME_TNAME = "tname";
     private static final String CLASSNAME_TTIME = "ttime";
     private static final String CLASSNAME_COMMENT = "tpinglun";
-    private static final String CLASSNAME_NEWSLIST = "mynewslist";
+    private static final String CLASSNAME_NAV_TITLE = "left";
+    private static final String ID_NEWSLIST = "mynewslist";
+    private static final String ID_VIEWPOINTS = "mySwipe";
+    private static final String ID_NAV = "nav";
+    private static final String CLASSNAME_SUBNAV = "subnav";
+    private static final String CLASSNAME_NAV = "nav";
     private static final String ATTR_DATA_ID = "data-id";
 
     private static final String VALUE_AD = "推广";
     private static final String VALUE_TOP = "置顶";
 
-    private OnLoadCompleteListener mOnLoadCompleteListener;
+    private OnLoadTopicsCompleteListener mOnLoadTopicsCompleteListener;
+    private OnLoadViewpointsCompleteListener mOnLoadViewpointsCompleteListener;
+    private OnLoadNavCompleteListener mOnLoadNavCompleteListener;
+
+    private List<Topic> mTopics = null;
+    private List<Viewpoint> mViewPoints = null;
+    private List<NavType> mNavTypes = null;
+    private List<SubNavType> mSubNavTypes = null;
 
     private static String getRefLinkFromST(Element ele) {
         return ele.child(0).attr(Constants.ATTR_LINK);
@@ -57,16 +64,123 @@ public class GetTopics extends AsyncTask<String, Void, List<Topic>> {
         return ele.child(0).text();
     }
 
-    private static List<String> getIconsFromIMG(Element ele) {
-        List<String> icons = new ArrayList<>();
-        for (Element img : ele.child(0).children()) {
-            icons.add(img.attr("src"));
+    private static String[] getIconsFromIMG(Element ele) {
+        Elements imgs = ele.getElementsByTag("img");
+        String[] img_path = new String[imgs.size()];
+        int i = 0;
+        for (Element img : imgs) {
+            img_path[i++] = img.attr("src");
         }
-        return icons;
+        return img_path;
     }
 
-    public GetTopics setOnLoadCompleteListener(OnLoadCompleteListener l) {
-        mOnLoadCompleteListener = l;
+    private List<Topic> getTopicsFromEle(Element parent) {
+        Elements eles = parent.children();
+        List<Topic> topics = new ArrayList<>();
+        for (Element ele : eles) {
+            String display = "";
+            Topic topic = new Topic();
+            Elements childs = ele.children();
+            if (childs.size() > 3) {
+                if (childs.get(3).text().equals(VALUE_AD)) {
+                    Log.d("Parse", "Dump ad");
+                    continue;
+                }
+                topic.id = "0";
+                Element tmp = ele.getElementsByClass(CLASSNAME_TITLE).first();
+                topic.link = getRefLinkFromST(tmp);
+                topic.title = getTitleFromST(tmp);
+                topic.icon = getIconsFromIMG(ele);
+                topic.date = null;
+                topic.isTop = true;
+                topic.writer = "";
+                topics.add(topic);
+            } else if (ele.hasAttr(ATTR_DATA_ID)) {
+                Element tmp;
+                topic.isTop = false;
+                topic.id = ele.attr(ATTR_DATA_ID);
+                if (childs.hasClass(CLASSNAME_TOPIC)) {
+                    tmp = ele.getElementsByClass(CLASSNAME_TOPIC).first();
+                } else {
+                    tmp = ele.getElementsByClass(CLASSNAME_TITLE).first();
+                }
+                topic.link = getRefLinkFromST(tmp);
+                topic.title = getTitleFromST(tmp);
+                if (childs.hasClass(CLASSNAME_ICON)) {
+                    topic.icon = getIconsFromIMG(ele);
+                }
+                if (childs.hasClass(CLASSNAME_ICONS)) {
+                    topic.icon = getIconsFromIMG(ele);
+                }
+                topic.writer = ele.getElementsByClass(CLASSNAME_TNAME).text();
+                topic.date = Topic.getDateFromRelative(ele.getElementsByClass(CLASSNAME_TTIME).text());
+                tmp = ele.getElementsByClass(CLASSNAME_COMMENT).first().child(0);
+                topic.comment_link = tmp.attr(Constants.ATTR_LINK);
+                topic.comments_count = tmp.text();
+                topics.add(topic);
+            } else {
+                Log.d("Parse", "unrecognized content");
+                continue;
+            }
+
+            if (topic.isTop) {
+                display = topic.title;
+            } else {
+                display = topic.id + "/" + topic.title;
+            }
+            Log.d("Parse", display);
+        }
+        return topics;
+    }
+
+    private List<Viewpoint> getViewpointsFromEle(Element parent) {
+        Elements eles = parent.child(0).children();
+        List<Viewpoint> vps = new ArrayList<>();
+        for (Element ele : eles) {
+            Viewpoint vp = new Viewpoint();
+            vp.title = ele.getElementsByClass("left").text();
+            vp.link = ele.getElementsByTag("a").attr(Constants.ATTR_LINK);
+            vp.icon = ele.getElementsByTag("img").attr("src");
+            vps.add(vp);
+            Log.d("parse", "title:" + vp.title + "/link:" + vp.link);
+        }
+        return vps;
+    }
+
+    private List<NavType> getNavTypesFromEle(Element parent) {
+        Elements eles = parent.getElementsByTag("a");
+        List<NavType> navTypes = new ArrayList<>();
+        for (Element ele : eles) {
+            NavType navType = new NavType();
+            navType.title = ele.text();
+            String tmp = ele.attr(Constants.ATTR_LINK);
+            int index = tmp.indexOf("=");
+            if (index != -1) {
+                navType.tid = tmp.substring(index + 1);
+            } else {
+                navType.tid = "0";
+            }
+            Log.d("parse", "title:" + navType.title + "/tid:" + navType.tid);
+        }
+        return navTypes;
+    }
+
+    private List<SubNavType> getSubNavTypesFromEle(Element parent) {
+        return null;
+    }
+
+    public GetTopics setOnLoadTopicsCompleteListener(OnLoadTopicsCompleteListener l) {
+        mOnLoadTopicsCompleteListener = l;
+        return this;
+    }
+
+    public GetTopics setOnLoadViewpointsCompleteListener(OnLoadViewpointsCompleteListener l) {
+        mOnLoadViewpointsCompleteListener = l;
+        return this;
+    }
+
+    public GetTopics setOnLoadNavCompleteListener(OnLoadNavCompleteListener l) {
+        mOnLoadNavCompleteListener = l;
         return this;
     }
 
@@ -76,88 +190,62 @@ public class GetTopics extends AsyncTask<String, Void, List<Topic>> {
      * @param params params[0] for Tid and params[1] for minid
      * @return
      */
-
     @Override
-    protected List<Topic> doInBackground(String... params) {
-        List<Topic> topics = new ArrayList<>();
+    protected Integer doInBackground(String... params) {
+        int result = 0;
         try {
             Document doc = null;
             Elements eles = null;
-            if (params.length == 2) {
-                List<Pair> url_params = new ArrayList<>();
-                url_params.add(new Pair("Tid", params[0]));
-                url_params.add(new Pair("type", "1"));
-                url_params.add(new Pair("minid", params[1]));
-                doc = Jsoup.parse(Utils.getURLWithParams(Constants.MOBILE_WEB_HOST + Constants.MOBILE_GET_MORE_LIST, url_params), 5000);
-                eles = doc.getElementsByTag("body").first().children();
-            } else {
-                doc = Jsoup.parse(new URL(Constants.MOBILE_WEB_HOST), 5000);
-                eles = doc.getElementById(CLASSNAME_NEWSLIST).children();
+            if (params.length < 2) {
+                Log.d("GetTopics", "wrong start params");
+                return -1;
             }
-            for (Element ele : eles) {
-                String display = "";
-                Topic topic = new Topic();
-                Elements childs = ele.children();
-                if (childs.size() > 3) {
-                    if (childs.get(3).text().equals(VALUE_AD)) {
-                        Log.d("Parse", "Dump ad");
-                        continue;
+            List<Pair> url_params = new LinkedList<>();
+            switch (params[0]) {
+                case MODE_GET_MORE:
+                    url_params.add(new Pair("Tid", params[1]));
+                    url_params.add(new Pair("type", "1"));
+                    url_params.add(new Pair("minid", params[2]));
+                    doc = Jsoup.parse(Utils.getURLWithParams(Constants.MOBILE_WEB_HOST + Constants.MOBILE_GET_MORE_LIST, url_params), 5000);
+                    if (mOnLoadTopicsCompleteListener != null) {
+                        mTopics = getTopicsFromEle(doc.getElementsByTag("body").first());
                     }
-                    topic.id = "0";
-                    Element tmp = ele.getElementsByClass(CLASSNAME_TITLE).first();
-                    topic.link = getRefLinkFromST(tmp);
-                    topic.title = getTitleFromST(tmp);
-                    topic.icon = getIconsFromIMG(ele.getElementsByClass(CLASSNAME_ICON).first());
-                    topic.date = null;
-                    topic.isTop = true;
-                    topic.writer = "";
-                    topics.add(topic);
-                } else if (ele.hasAttr(ATTR_DATA_ID)) {
-                    Element tmp;
-                    topic.isTop = false;
-                    topic.id = ele.attr(ATTR_DATA_ID);
-                    if (childs.hasClass(CLASSNAME_TOPIC)) {
-                        tmp = ele.getElementsByClass(CLASSNAME_TOPIC).first();
-                    } else {
-                        tmp = ele.getElementsByClass(CLASSNAME_TITLE).first();
+                    break;
+                case MODE_REFRESH:
+                    url_params.add(new Pair("tid", params[1]));
+                    doc = Jsoup.parse(Utils.getURLWithParams(Constants.MOBILE_WEB_HOST + Constants.MOBILE_WEB_NAV, url_params), 5000);
+                    if (mOnLoadTopicsCompleteListener != null) {
+                        mTopics = getTopicsFromEle(doc.getElementById(ID_NEWSLIST));
                     }
-                    topic.link = getRefLinkFromST(tmp);
-                    topic.title = getTitleFromST(tmp);
-                    if (childs.hasClass(CLASSNAME_ICON)) {
-                        topic.icon = getIconsFromIMG(ele.getElementsByClass(CLASSNAME_ICON).first());
+                    if (mOnLoadViewpointsCompleteListener != null) {
+                        mViewPoints = getViewpointsFromEle(doc.getElementById(ID_VIEWPOINTS));
                     }
-                    if (childs.hasClass(CLASSNAME_ICONS)) {
-                        topic.icon = getIconsFromIMG(ele.getElementsByClass(CLASSNAME_ICONS).first());
+                    if (mOnLoadNavCompleteListener != null) {
+                        mNavTypes = getNavTypesFromEle(doc.getElementById(ID_NAV));
+                        mSubNavTypes = getSubNavTypesFromEle(doc.getElementsByClass(CLASSNAME_SUBNAV).first());
                     }
-                    topic.writer = ele.getElementsByClass(CLASSNAME_TNAME).text();
-                    topic.date = Topic.getDateFromRelative(ele.getElementsByClass(CLASSNAME_TTIME).text());
-                    tmp = ele.getElementsByClass(CLASSNAME_COMMENT).first().child(0);
-                    topic.comment_link = tmp.attr(Constants.ATTR_LINK);
-                    topic.comments_count = tmp.text();
-                    topics.add(topic);
-                } else {
-                    Log.d("Parse", "unrecognized content");
-                    continue;
-                }
-
-                if (topic.isTop) {
-                    display = topic.title;
-                } else {
-                    display = topic.id + "/" + topic.title;
-                }
-                Log.d("Parse", display);
+                    break;
+                default:
+                    Log.d("GetTopics", "unrecognizable mode:" + params[0]);
+                    result = -1;
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return topics;
+        return result;
     }
 
     @Override
-    protected void onPostExecute(List<Topic> s) {
+    protected void onPostExecute(Integer s) {
         super.onPostExecute(s);
-        if (mOnLoadCompleteListener != null) {
-            mOnLoadCompleteListener.onLoadComplete(s);
+        if (mOnLoadTopicsCompleteListener != null) {
+            mOnLoadTopicsCompleteListener.onLoadComplete(mTopics);
+        }
+        if (mOnLoadViewpointsCompleteListener != null) {
+            mOnLoadViewpointsCompleteListener.onLoadComplete(mViewPoints);
+        }
+        if (mOnLoadNavCompleteListener != null) {
+            mOnLoadNavCompleteListener.onLoadComplete(mNavTypes, mSubNavTypes);
         }
     }
 
@@ -171,7 +259,15 @@ public class GetTopics extends AsyncTask<String, Void, List<Topic>> {
         super.onProgressUpdate(values);
     }
 
-    public interface OnLoadCompleteListener {
+    public interface OnLoadTopicsCompleteListener {
         void onLoadComplete(List<Topic> src);
+    }
+
+    public interface OnLoadViewpointsCompleteListener {
+        void onLoadComplete(List<Viewpoint> src);
+    }
+
+    public interface OnLoadNavCompleteListener {
+        void onLoadComplete(List<NavType> src, List<SubNavType> src_sub);
     }
 }

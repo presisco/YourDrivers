@@ -5,6 +5,8 @@ import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
+import product.presisco.yourdrivers.Network.VolleyPlusRes;
+
 public class LauncherActivity extends AppCompatActivity {
 
     @Override
@@ -22,6 +24,7 @@ public class LauncherActivity extends AppCompatActivity {
             } catch (Exception e) {
                 e.printStackTrace();
             }
+            VolleyPlusRes.init(getApplicationContext());
             return null;
         }
 

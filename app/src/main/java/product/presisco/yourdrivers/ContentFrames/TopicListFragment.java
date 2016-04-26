@@ -17,7 +17,6 @@ import android.view.ViewGroup;
 import java.util.ArrayList;
 import java.util.List;
 
-import product.presisco.yourdrivers.Article.ArticleActivity;
 import product.presisco.yourdrivers.DataModel.Topic;
 import product.presisco.yourdrivers.Network.Constants;
 import product.presisco.yourdrivers.Network.Task.GetTopics;
@@ -26,20 +25,20 @@ import product.presisco.yourdrivers.R;
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link ArticleListFragment.OnFragmentInteractionListener} interface
+ * {@link TopicListFragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
- * Use the {@link ArticleListFragment#newInstance} factory method to
+ * Use the {@link TopicListFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class ArticleListFragment extends Fragment {
+public class TopicListFragment extends Fragment {
+    public static final String TITLE_TEXT = "Topics";
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String TAG = ArticleListFragment.class.getSimpleName();
-
+    private static final String TAG = TopicListFragment.class.getSimpleName();
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
     private static final String ARG_TID = "tid";
-    ArticleListAdapter mArticleListAdapter;
+    TopicListAdapter mTopicListAdapter;
     RecyclerView mArticleList;
     SwipeRefreshLayout mSwipeRefreshLayout;
     List<Topic> mTopics = new ArrayList<>();
@@ -51,7 +50,7 @@ public class ArticleListFragment extends Fragment {
     private boolean isRefresh = true;
     private String tid = "0";
 
-    public ArticleListFragment() {
+    public TopicListFragment() {
         // Required empty public constructor
     }
 
@@ -61,11 +60,11 @@ public class ArticleListFragment extends Fragment {
      *
      * @param param1 Parameter 1.
      * @param param2 Parameter 2.
-     * @return A new instance of fragment ArticleListFragment.
+     * @return A new instance of fragment TopicListFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static ArticleListFragment newInstance(String param1, String param2) {
-        ArticleListFragment fragment = new ArticleListFragment();
+    public static TopicListFragment newInstance(String param1, String param2) {
+        TopicListFragment fragment = new TopicListFragment();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);
@@ -97,16 +96,23 @@ public class ArticleListFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         mArticleList = (RecyclerView) view.findViewById(R.id.mainList);
         mArticleList.setLayoutManager(new LinearLayoutManager(getContext()));
-        mArticleListAdapter = new ArticleListAdapter(new OnTopicClickedListener(),
+        mTopicListAdapter = new TopicListAdapter(new OnTopicClickedListener(),
                 new OnAppendListener());
-        mArticleListAdapter.setDataSrc(mTopics);
-        mArticleList.setAdapter(mArticleListAdapter);
+        mTopicListAdapter.setDataSrc(mTopics);
+        mArticleList.setAdapter(mTopicListAdapter);
 
         mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.mainSwipeRefresh);
         mSwipeRefreshLayout.setColorSchemeResources(R.color.material_light_blue_500, R.color.material_red_500);
         mSwipeRefreshLayout.setOnRefreshListener(new OnRefresh());
 
-        refreshContent();
+        view.findViewById(R.id.gotoTop).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mArticleList.scrollToPosition(0);
+            }
+        });
+
+        refreshContent(new String[]{GetTopics.MODE_REFRESH, "0"});
 
         if (isFirstLaunch) {
             mSwipeRefreshLayout.setRefreshing(true);
@@ -136,9 +142,14 @@ public class ArticleListFragment extends Fragment {
         mListener = null;
     }
 
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+    }
+
     private void refreshContent(String... params) {
         mSwipeRefreshLayout.setRefreshing(true);
-        new GetTopics().setOnLoadCompleteListener(new OnFetchComplete()).execute(params);
+        new GetTopics().setOnLoadTopicsCompleteListener(new OnFetchTopicsComplete()).execute(params);
     }
 
     /**
@@ -160,11 +171,11 @@ public class ArticleListFragment extends Fragment {
         @Override
         public void onRefresh() {
             isRefresh = true;
-            refreshContent();
+            refreshContent(new String[]{GetTopics.MODE_REFRESH, "0"});
         }
     }
 
-    private class OnFetchComplete implements GetTopics.OnLoadCompleteListener {
+    private class OnFetchTopicsComplete implements GetTopics.OnLoadTopicsCompleteListener {
         @Override
         public void onLoadComplete(List<Topic> src) {
             if (mTopics.size() == 0) {
@@ -174,13 +185,13 @@ public class ArticleListFragment extends Fragment {
             } else {
                 mTopics.addAll(mTopics.size(), src);
             }
-            mArticleListAdapter.setDataSrc(mTopics);
-            mArticleListAdapter.notifyDataSetChanged();
+            mTopicListAdapter.setDataSrc(mTopics);
+            mTopicListAdapter.notifyDataSetChanged();
             mSwipeRefreshLayout.setRefreshing(false);
         }
     }
 
-    private class OnTopicClickedListener implements ArticleListAdapter.OnContentItemClickedListener {
+    private class OnTopicClickedListener implements TopicListAdapter.OnContentItemClickedListener {
         @Override
         public void onContentItemClicked(int pos) {
             Log.d(TAG, "selected topic:" + mTopics.get(pos).id + "/" + mTopics.get(pos).title + "/" + mTopics.get(pos).link);
@@ -190,11 +201,11 @@ public class ArticleListFragment extends Fragment {
         }
     }
 
-    private class OnAppendListener implements ArticleListAdapter.OnFooterShowedListener {
+    private class OnAppendListener implements TopicListAdapter.OnFooterShowedListener {
         @Override
         public void onFooterShowed() {
             isRefresh = false;
-            refreshContent(new String[]{tid, mTopics.get(mTopics.size() - 1).id});
+            refreshContent(new String[]{GetTopics.MODE_GET_MORE, tid, mTopics.get(mTopics.size() - 1).id});
         }
     }
 }
