@@ -58,7 +58,21 @@ public class ArticleRequest extends Request<Article> {
         for (Element ele : contentEles) {
             switch (ele.tagName()) {
                 case "p":
-                    if (ele.hasText()) {
+                    if (ele.hasAttr("align")) {
+                        if (!isMergingImgs) {
+                            art.contents.add(new Article.Text(textBuff));
+                            isMergingImgs = true;
+                        }
+                        images.add(ele.getElementsByTag("img").first().attr("src"));
+                        String text = ele.text();
+                        if (ele.text() != "") {
+                            art.contents.add(new Article.Images(images.toArray(new String[0])));
+                            images.clear();
+                            isMergingImgs = false;
+                            textBuff = "";
+                            art.contents.add(new Article.Text(text));
+                        }
+                    } else {
                         if (isMergingImgs) {
                             art.contents.add(new Article.Images(images.toArray(new String[0])));
                             images.clear();
@@ -67,12 +81,6 @@ public class ArticleRequest extends Request<Article> {
                         } else {
                             textBuff = textBuff + "\n" + ele.text();
                         }
-                    } else {
-                        if (!isMergingImgs) {
-                            art.contents.add(new Article.Text(textBuff));
-                            isMergingImgs = true;
-                        }
-                        images.add(ele.getElementsByTag("img").first().attr("src"));
                     }
                     break;
                 case "div":
