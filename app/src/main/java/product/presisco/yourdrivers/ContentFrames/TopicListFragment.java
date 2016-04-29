@@ -17,6 +17,7 @@ import android.view.ViewGroup;
 import java.util.ArrayList;
 import java.util.List;
 
+import product.presisco.yourdrivers.Article.ArticleActivity;
 import product.presisco.yourdrivers.DataModel.Topic;
 import product.presisco.yourdrivers.Network.Constants;
 import product.presisco.yourdrivers.Network.Task.GetTopics;
@@ -197,8 +198,10 @@ public class TopicListFragment extends Fragment {
         @Override
         public void onContentItemClicked(int pos) {
             Log.d(TAG, "selected topic:" + mTopics.get(pos).id + "/" + mTopics.get(pos).title + "/" + mTopics.get(pos).link);
-            String addr = Constants.MOBILE_WEB_HOST + mTopics.get(pos).link;
-            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(addr));
+            String url_addr = Constants.MOBILE_WEB_HOST + mTopics.get(pos).link;
+            //Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url_addr));
+            Intent intent = new Intent(getContext(), ArticleActivity.class);
+            intent.putExtra(ArticleActivity.PAGE_LINK, url_addr);
             startActivity(intent);
         }
     }

@@ -16,4 +16,9 @@
     <string name="text_topics">新闻</string>
     <string name="text_settings">设置</string>
     <string name="text_about">关于</string>
+
+    <string name="text_previous_page">上一页</string>
+    <string name="text_next_page">下一页</string>
+    <string name="text_all_left">余下全文</string>
+
 </resources>
