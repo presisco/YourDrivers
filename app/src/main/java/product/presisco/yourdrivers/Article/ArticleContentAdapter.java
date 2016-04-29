@@ -51,7 +51,7 @@ public class ArticleContentAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     public int getItemViewType(int position) {
         if (position == 0) {
             return VIEWTYPE_TITLE;
-        } else if (position == getItemCount() + 1) {
+        } else if (position == mArticle.contents.size() + 1) {
             return VIEWTYPE_FOOTER;
         } else if (mArticle.contents.get(position - 1).type == Article.Text.TAG) {
             return VIEWTYPE_TEXT;
