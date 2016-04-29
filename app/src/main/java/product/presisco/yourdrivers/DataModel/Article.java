@@ -17,6 +17,8 @@ public class Article {
     public String prev_link = "";
     public String next_link = "";
     public String all_link = "";
+    public String ref_name = "";
+    public String ref_link = "";
 
     public static class Node {
         public String type = "";

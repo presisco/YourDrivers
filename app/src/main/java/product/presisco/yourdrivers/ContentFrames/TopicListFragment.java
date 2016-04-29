@@ -181,7 +181,7 @@ public class TopicListFragment extends Fragment {
     private class OnFetchTopicsComplete implements GetTopics.OnLoadTopicsCompleteListener {
         @Override
         public void onLoadComplete(List<Topic> src) {
-            if (mTopics.size() == 0) {
+            if (mTopics.size() == 0 || mTopics == null) {
                 mTopics = src;
             } else if (isRefresh) {
                 mTopics = src;
@@ -198,10 +198,9 @@ public class TopicListFragment extends Fragment {
         @Override
         public void onContentItemClicked(int pos) {
             Log.d(TAG, "selected topic:" + mTopics.get(pos).id + "/" + mTopics.get(pos).title + "/" + mTopics.get(pos).link);
-            String url_addr = Constants.MOBILE_WEB_HOST + mTopics.get(pos).link;
             //Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url_addr));
             Intent intent = new Intent(getContext(), ArticleActivity.class);
-            intent.putExtra(ArticleActivity.PAGE_LINK, url_addr);
+            intent.putExtra(ArticleActivity.PAGE_LINK, mTopics.get(pos).link);
             startActivity(intent);
         }
     }

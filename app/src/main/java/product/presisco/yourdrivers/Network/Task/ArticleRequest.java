@@ -51,28 +51,44 @@ public class ArticleRequest extends Request<Article> {
     }
 
     private void addArticleContent(Article art, Element src) {
-        Elements contentEles = src.getElementsByTag("p");
+        Elements contentEles = src.children();
         List<String> images = new ArrayList<>();
         boolean isMergingImgs = false;
         String textBuff = "";
         for (Element ele : contentEles) {
-            if (ele.hasText()) {
-                if (isMergingImgs) {
-                    art.contents.add(new Article.Images(images.toArray(new String[0])));
-                    images.clear();
-                    isMergingImgs = false;
-                } else {
-                    textBuff = ele.text();
-                    if (ele.getElementsByTag("strong") != null) {
-                        textBuff += ele.getElementsByTag("strong").text();
+            switch (ele.tagName()) {
+                case "p":
+                    if (ele.hasText()) {
+                        if (isMergingImgs) {
+                            art.contents.add(new Article.Images(images.toArray(new String[0])));
+                            images.clear();
+                            isMergingImgs = false;
+                            textBuff = "";
+                        }
+                        textBuff += ele.text();
+//                            Element str_ele=ele.getElementsByTag("strong").first();
+//                            if (str_ele != null) {
+//                                String strong=str_ele.text();
+//                                textBuff += strong;
+//                            }
+                    } else {
+                        if (!isMergingImgs) {
+                            art.contents.add(new Article.Text(textBuff));
+                            isMergingImgs = true;
+                        }
+                        images.add(ele.getElementsByTag("img").first().attr("src"));
                     }
-                }
-            } else {
-                if (!isMergingImgs) {
-                    art.contents.add(new Article.Text(textBuff));
-                    isMergingImgs = true;
-                }
-                images.add(ele.getElementsByTag("img").first().attr("src"));
+                    break;
+                case "div":
+                    art.isMultPage = true;
+                    art.all_link = ele.child(0).attr("href");
+                    art.prev_link = ele.child(1).child(0).attr("href");
+                    art.next_link = ele.child(1).child(1).attr("href");
+                    break;
+                case "a":
+                    art.ref_name = ele.text();
+                    art.ref_link = ele.attr("href");
+                    break;
             }
         }
         if (isMergingImgs) {
@@ -83,13 +99,6 @@ public class ArticleRequest extends Request<Article> {
         }
         images = null;
         textBuff = null;
-        Element footerEle = src.getElementsByTag("div").get(1);
-        if (footerEle != null) {
-            art.isMultPage = true;
-            art.all_link = footerEle.child(0).attr("href");
-            art.prev_link = footerEle.child(1).child(0).attr("href");
-            art.next_link = footerEle.child(1).child(1).attr("href");
-        }
     }
 
     @Override

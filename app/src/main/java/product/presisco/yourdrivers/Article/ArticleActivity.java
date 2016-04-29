@@ -15,6 +15,7 @@ import com.android.volley.error.VolleyError;
 import com.android.volley.toolbox.Volley;
 
 import product.presisco.yourdrivers.DataModel.Article;
+import product.presisco.yourdrivers.Network.Constants;
 import product.presisco.yourdrivers.Network.Task.ArticleRequest;
 import product.presisco.yourdrivers.Network.VolleyPlusRes;
 import product.presisco.yourdrivers.R;
@@ -41,14 +42,16 @@ public class ArticleActivity extends AppCompatActivity {
         mAdapter = new ArticleContentAdapter(this, new OnPageListener());
         mContentView.setLayoutManager(new LinearLayoutManager(this));
 
-
         getContent(page_link);
 
     }
 
-    private void getContent(String url) {
+    private void getContent(String relative_url) {
+        if (relative_url == "" || relative_url == null || relative_url.equals(Constants.MOBILE_WEB_HOST)) {
+            return;
+        }
         VolleyPlusRes.getRequestQueue().add(new ArticleRequest(Request.Method.GET,
-                url,
+                Constants.MOBILE_WEB_HOST + relative_url,
                 new OnLoadCompleteListener(),
                 new OnLoadFailedListener()));
         mLoading.setVisibility(View.VISIBLE);

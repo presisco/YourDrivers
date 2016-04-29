@@ -2,6 +2,7 @@ package product.presisco.yourdrivers.Article;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,6 +20,8 @@ import product.presisco.yourdrivers.R;
  * Created by presisco on 2016/4/29.
  */
 public class ArticleContentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+    private static final String TAG = ArticleContentAdapter.class.getSimpleName();
+
     private static final int VIEWTYPE_UNKNOWN = -1;
     private static final int VIEWTYPE_TITLE = 0;
     private static final int VIEWTYPE_TEXT = 1;
@@ -46,14 +49,14 @@ public class ArticleContentAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
     @Override
     public int getItemViewType(int position) {
-        if (mArticle.contents.get(position).type == Article.Text.TAG) {
-            return VIEWTYPE_TEXT;
-        } else if (mArticle.contents.get(position).type == Article.Images.TAG) {
-            return VIEWTYPE_IMAGES;
-        } else if (position == 0) {
+        if (position == 0) {
             return VIEWTYPE_TITLE;
         } else if (position == getItemCount() - 1) {
             return VIEWTYPE_FOOTER;
+        } else if (mArticle.contents.get(position - 1).type == Article.Text.TAG) {
+            return VIEWTYPE_TEXT;
+        } else if (mArticle.contents.get(position - 1).type == Article.Images.TAG) {
+            return VIEWTYPE_IMAGES;
         } else {
             return VIEWTYPE_UNKNOWN;
         }
@@ -67,18 +70,24 @@ public class ArticleContentAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater li = LayoutInflater.from(mContext);
+        RecyclerView.ViewHolder vh = null;
         switch (viewType) {
             case VIEWTYPE_TITLE:
-                return new TitleHolder(li.inflate(R.layout.article_title, parent));
+                vh = new TitleHolder(li.inflate(R.layout.article_title, parent, false));
+                break;
             case VIEWTYPE_TEXT:
-                return new TextHolder(li.inflate(R.layout.article_content_text, parent));
+                vh = new TextHolder(li.inflate(R.layout.article_content_text, parent, false));
+                break;
             case VIEWTYPE_IMAGES:
-                return new ImagesHolder(li.inflate(R.layout.article_content_images, parent));
+                vh = new ImagesHolder(li.inflate(R.layout.article_content_images, parent, false));
+                break;
             case VIEWTYPE_FOOTER:
-                return new FooterHolder(li.inflate(R.layout.article_page_selection, parent));
+                vh = new FooterHolder(li.inflate(R.layout.article_page_selection, parent, false));
+                break;
             default:
-                return null;
+                Log.d(TAG, "unrecognized viewtype:" + viewType);
         }
+        return vh;
     }
 
     @Override

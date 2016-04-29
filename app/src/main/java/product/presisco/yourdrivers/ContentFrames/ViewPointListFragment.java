@@ -19,6 +19,7 @@ import com.android.volley.toolbox.ImageLoader;
 import java.util.ArrayList;
 import java.util.List;
 
+import product.presisco.yourdrivers.Article.ArticleActivity;
 import product.presisco.yourdrivers.DataModel.Viewpoint;
 import product.presisco.yourdrivers.Network.Constants;
 import product.presisco.yourdrivers.Network.Task.GetTopics;
@@ -104,7 +105,11 @@ public class ViewPointListFragment extends Fragment {
 
         @Override
         public int getItemCount() {
-            return mViewPoints.size();
+            if (mViewPoints == null) {
+                return 0;
+            } else {
+                return mViewPoints.size();
+            }
         }
 
         @Override
@@ -138,8 +143,9 @@ public class ViewPointListFragment extends Fragment {
                 itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        String addr = Constants.MOBILE_WEB_HOST + mViewPoints.get(getAdapterPosition()).link;
-                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(addr));
+                        Intent intent = new Intent(getContext(), ArticleActivity.class);
+                        intent.putExtra(ArticleActivity.PAGE_LINK, mViewPoints.get(getAdapterPosition()).link);
+//                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(addr));
                         startActivity(intent);
                     }
                 });
