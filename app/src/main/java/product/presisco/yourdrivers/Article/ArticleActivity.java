@@ -5,18 +5,17 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
-import android.webkit.WebView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.error.VolleyError;
-import com.android.volley.toolbox.Volley;
 
 import product.presisco.yourdrivers.DataModel.Article;
 import product.presisco.yourdrivers.Network.Constants;
 import product.presisco.yourdrivers.Network.Task.ArticleRequest;
+import product.presisco.yourdrivers.Network.Task.ExtendedRequest;
 import product.presisco.yourdrivers.Network.VolleyPlusRes;
 import product.presisco.yourdrivers.R;
 
@@ -58,7 +57,8 @@ public class ArticleActivity extends AppCompatActivity {
         mContentView.setVisibility(View.INVISIBLE);
     }
 
-    private class OnLoadCompleteListener implements ArticleRequest.OnLoadCompleteListener {
+    private class OnLoadCompleteListener implements ExtendedRequest.OnLoadCompleteListener<Article> {
+
         @Override
         public void onLoadComplete(Article art) {
             mArticle = art;

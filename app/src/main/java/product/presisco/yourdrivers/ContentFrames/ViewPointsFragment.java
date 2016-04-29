@@ -2,7 +2,6 @@ package product.presisco.yourdrivers.ContentFrames;
 
 
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -13,7 +12,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.error.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 
 import java.util.ArrayList;
@@ -21,17 +24,18 @@ import java.util.List;
 
 import product.presisco.yourdrivers.Article.ArticleActivity;
 import product.presisco.yourdrivers.DataModel.Viewpoint;
-import product.presisco.yourdrivers.Network.Constants;
-import product.presisco.yourdrivers.Network.Task.GetTopics;
+import product.presisco.yourdrivers.Network.Task.ExtendedRequest;
+import product.presisco.yourdrivers.Network.Task.HeadlineRequest;
+import product.presisco.yourdrivers.Network.Task.ViewPointRequest;
 import product.presisco.yourdrivers.Network.VolleyPlusRes;
 import product.presisco.yourdrivers.R;
 
 /**
  * A simple {@link Fragment} subclass.
- * Use the {@link ViewPointListFragment#newInstance} factory method to
+ * Use the {@link ViewPointsFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class ViewPointListFragment extends Fragment {
+public class ViewPointsFragment extends Fragment implements ExtendedRequest.OnLoadCompleteListener<List<Viewpoint>>, Response.ErrorListener {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     public static final String TITLE_TEXT = "View Points";
@@ -41,22 +45,21 @@ public class ViewPointListFragment extends Fragment {
     List<Viewpoint> mViewPoints = new ArrayList<>();
     RecyclerView mViewPointList;
     ViewpointAdapter mViewPointAdapter;
-    // TODO: Rename and change types of parameters
+
     private String mParam1;
     private String mParam2;
 
-    public ViewPointListFragment() {
+    public ViewPointsFragment() {
         // Required empty public constructor
     }
 
     /**
      * Use this factory method to create a new instance of
      *
-     * @return A new instance of fragment ViewPointListFragment.
+     * @return A new instance of fragment ViewPointsFragment.
      */
-    // TODO: Rename and change types and number of parameters
-    public static ViewPointListFragment newInstance() {
-        ViewPointListFragment fragment = new ViewPointListFragment();
+    public static ViewPointsFragment newInstance() {
+        ViewPointsFragment fragment = new ViewPointsFragment();
         return fragment;
     }
 
@@ -91,14 +94,24 @@ public class ViewPointListFragment extends Fragment {
     }
 
     private void loadData() {
-        new GetTopics().setOnLoadViewpointsCompleteListener(new GetTopics.OnLoadViewpointsCompleteListener() {
-            @Override
-            public void onLoadComplete(List<Viewpoint> src) {
-                mViewPoints = null;
-                mViewPoints = src;
-                mViewPointAdapter.notifyDataSetChanged();
-            }
-        }).execute(new String[]{GetTopics.MODE_REFRESH, "0"});
+        VolleyPlusRes.getRequestQueue().add(
+                new ViewPointRequest(
+                        Request.Method.GET
+                        , this
+                        , this
+                ));
+    }
+
+    @Override
+    public void onLoadComplete(List<Viewpoint> data) {
+        mViewPoints.clear();
+        mViewPoints.addAll(data);
+        mViewPointAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onErrorResponse(VolleyError volleyError) {
+        Toast.makeText(getActivity(), volleyError.getMessage(), Toast.LENGTH_SHORT).show();
     }
 
     private class ViewpointAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {

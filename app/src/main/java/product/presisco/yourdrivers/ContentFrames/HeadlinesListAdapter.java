@@ -13,15 +13,15 @@ import com.android.volley.toolbox.ImageLoader;
 import java.util.ArrayList;
 import java.util.List;
 
-import product.presisco.yourdrivers.DataModel.Topic;
+import product.presisco.yourdrivers.DataModel.Headline;
 import product.presisco.yourdrivers.Network.VolleyPlusRes;
 import product.presisco.yourdrivers.R;
 
 /**
  * TODO: document your custom view class.
  */
-public class TopicListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-    private static final String TAG = TopicListAdapter.class.getSimpleName();
+public class HeadlinesListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+    private static final String TAG = HeadlinesListAdapter.class.getSimpleName();
 
     private static final int VIEWTYPE_HEADER = 0;
     private static final int VIEWTYPE_CONTENT = 1;
@@ -30,26 +30,26 @@ public class TopicListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     private static final int VIEWTYPE_CONTENT_ICON = 11;
     private static final int VIEWTYPE_CONTENT_ICONS = 12;
 
-    private List<Topic> mContents = new ArrayList<>();
+    private List<Headline> mContents = new ArrayList<>();
     private OnContentItemClickedListener mContentItemClickedListener = null;
     private OnFooterShowedListener mFooterShowedListener = null;
 
-    public TopicListAdapter() {
+    public HeadlinesListAdapter() {
         this(null);
     }
 
-    public TopicListAdapter(OnContentItemClickedListener l) {
+    public HeadlinesListAdapter(OnContentItemClickedListener l) {
         this(l, null);
     }
 
-    public TopicListAdapter(OnContentItemClickedListener itemClickedListener,
-                            OnFooterShowedListener footerShowedListener) {
+    public HeadlinesListAdapter(OnContentItemClickedListener itemClickedListener,
+                                OnFooterShowedListener footerShowedListener) {
         super();
         mContentItemClickedListener = itemClickedListener;
         mFooterShowedListener = footerShowedListener;
     }
 
-    public void setDataSrc(List<Topic> src) {
+    public void setDataSrc(List<Headline> src) {
         mContents = src;
     }
 
@@ -84,15 +84,15 @@ public class TopicListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         if (holder instanceof ContentViewHolder) {
             ContentViewHolder cHolder = (ContentViewHolder) holder;
-            Topic topic = mContents.get(position);
-            cHolder.mTitle.setText(topic.title);
-            cHolder.mWriter.setText(topic.writer);
+            Headline headline = mContents.get(position);
+            cHolder.mTitle.setText(headline.title);
+            cHolder.mWriter.setText(headline.writer);
             cHolder.mDate.setText("");
-            cHolder.mComm.setText(topic.comments_count);
+            cHolder.mComm.setText(headline.comments_count);
             if (cHolder instanceof IconViewHolder) {
                 IconViewHolder iHolder = (IconViewHolder) cHolder;
-                for (int i = 0; i < topic.icon.length; ++i) {
-                    VolleyPlusRes.getImageLoader().get(topic.icon[i],
+                for (int i = 0; i < headline.icon.length; ++i) {
+                    VolleyPlusRes.getImageLoader().get(headline.icon[i],
                             ImageLoader.getImageListener(iHolder.imageViews[i], R.drawable.empty_photo, R.drawable.error_image));
                 }
             }

@@ -8,7 +8,7 @@
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"/>
 
-    <title>颜值加速度！599元魅蓝3上手评测</title>
+    <headline>颜值加速度！599元魅蓝3上手评测</headline>
     <link href="http://11.mydrivers.com/m/css/v2/main.min.css?ver=2015052710" rel="stylesheet"
           type="text/css"/>
     <script type="text/javascript">
@@ -40,7 +40,7 @@
 
 <body>
 <div class="box">
-    <!--title-->
+    <!--headline-->
 
     <div id="header_er">
         <div class="ehome">
@@ -395,10 +395,10 @@
                                                                                                 href="javascript:void(mqqShare(&#39;friend&#39;));"
                                                                                                 data-share-type="wechat_qq:friend"
                                                                                                 class="mbds_friend"></a>
-        <a href="#" class="bds_qzone" data-cmd="qzone" title="分享到QQ空间"></a> <a href="#"
-                                                                               class="bds_tsina"
-                                                                               data-cmd="tsina"
-                                                                               title=
+        <a href="#" class="bds_qzone" data-cmd="qzone" headline="分享到QQ空间"></a> <a href="#"
+                                                                                  class="bds_tsina"
+                                                                                  data-cmd="tsina"
+                                                                                  headline=
                                                                                        "分享到新浪微博"></a>
         <script>
 <![CDATA[
@@ -503,7 +503,7 @@
                     },
         
                     mqqShare = function (type) {
-                        var title, url, imgUrl, to_app, qqbrowerVersion,
+                        var headline, url, imgUrl, to_app, qqbrowerVersion,
                             config = window.article_config;
             
                         if (type === 'friend') {
@@ -515,7 +515,7 @@
                             to_app = 8;
                         }
             
-                        title = config.news_title;
+                        headline = config.news_title;
                         imgUrl = config.share_img;
             
                         url = location.href;
@@ -526,7 +526,7 @@
                             url += '?_once_=000022_weixin_QQMB_back';
                         }
             
-                        weixinParams = {title: title, url: url, img_url: imgUrl, to_app: to_app};
+                        weixinParams = {headline: headline, url: url, img_url: imgUrl, to_app: to_app};
                         if (!isAndroid) {
                             handleShareWeixinNewQQbrower();
                         }
@@ -535,7 +535,7 @@
                                 handleShareWeixinNewQQbrower();
                             }
                             else {
-                                wxShare().init({title: title,url: url,imgUrl: imgUrl,to_app: to_app});
+                                wxShare().init({headline: headline,url: url,imgUrl: imgUrl,to_app: to_app});
                             }
                         }
                     };
@@ -548,7 +548,7 @@
                 window.weixinShareData = {
                     "img_url": window.article_config.share_img,
                     "link": window.location.href,
-                    "title": window.article_config.news_title,
+                    "headline": window.article_config.news_title,
                     "desc": $('meta[name="description"]').attr('content')
                 };
 
@@ -556,7 +556,7 @@
                     newWxShareLoad();
                 });
 
-                function ucshare(obj, title, content, url, platform) {
+                function ucshare(obj, headline, content, url, platform) {
                     var getPos = {
                         getTop: function (e) {
                             var offset = e.offsetTop;
@@ -600,7 +600,7 @@
                     }
 
                     if (typeof (ucweb) != "undefined") {
-                        var UCBrowserText = ucweb.startRequest("shell.page_share", [title, content, url, platform, '', '我们正在看【' + title + '】，一起来看吧', getPos.getNodeInfoById(obj)]);
+                        var UCBrowserText = ucweb.startRequest("shell.page_share", [headline, content, url, platform, '', '我们正在看【' + headline + '】，一起来看吧', getPos.getNodeInfoById(obj)]);
                         //var UCBrowserText = ucweb.startRequest("shell.page_share", ['', '使用UC浏览器分享js API', 'http://wap.uc.cn', '', 'invisible:QQ,Qzone', 'UC浏览器','']);
                     }
                     else if (typeof (ucbrowser) != "undefined") {
@@ -618,8 +618,8 @@
                         }
 
 
-                        ucbrowser.web_share(title, content, url, platform, '', '@驱动之家', obj);//title 指html的title
-                        //ucbrowser.web_share('title', 'content', 'url', 'platform', 'disablePlatform', 'source', 'htmlID');
+                        ucbrowser.web_share(headline, content, url, platform, '', '@驱动之家', obj);//headline 指html的title
+                        //ucbrowser.web_share('headline', 'content', 'url', 'platform', 'disablePlatform', 'source', 'htmlID');
                     }
                     else {
                         //alert("sorry,your browser version not support!");
@@ -679,7 +679,7 @@
             </div>
 
             <div class="plunxx_top3">
-                <div title="这条评论有问题，小编快来和谐它" onclick="userReport(${c.ID},${c.TitleID})"
+                <div headline="这条评论有问题，小编快来和谐它" onclick="userReport(${c.ID},${c.TitleID})"
                      style="padding-right:0px;" class=
                              "plunxx_bottom_fdui">
                     <span id="span_jubao_${c.ID}" style="color:red;">举报</span>

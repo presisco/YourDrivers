@@ -12,14 +12,16 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import product.presisco.yourdrivers.ContentFrames.TopicListFragment;
-import product.presisco.yourdrivers.ContentFrames.ViewPointListFragment;
+import product.presisco.yourdrivers.ContentFrames.HeadlinesFragment;
+import product.presisco.yourdrivers.ContentFrames.ViewPointsFragment;
+import product.presisco.yourdrivers.DataModel.Category;
+import product.presisco.yourdrivers.Network.Constants;
 import product.presisco.yourdrivers.Preference.SettingsActivity;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
-    ViewPointListFragment mViewPointListFragment;
-    TopicListFragment mTopicListFragment;
+    ViewPointsFragment mViewPointsFragment;
+    HeadlinesFragment mHeadlinesFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,13 +40,13 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        getSupportActionBar().setTitle(ViewPointListFragment.TITLE_TEXT);
+        getSupportActionBar().setTitle(ViewPointsFragment.TITLE_TEXT);
 
-        mViewPointListFragment = ViewPointListFragment.newInstance();
-        mTopicListFragment = TopicListFragment.newInstance("", "");
+        mViewPointsFragment = ViewPointsFragment.newInstance();
+        mHeadlinesFragment = HeadlinesFragment.newInstance(new Category("all", Constants.NEWS_CATEGORY, "0"));
 
         FragmentTransaction trans = getSupportFragmentManager().beginTransaction();
-        trans.replace(R.id.contentFrame, mViewPointListFragment);
+        trans.replace(R.id.contentFrame, mViewPointsFragment);
         trans.commit();
     }
 
@@ -91,13 +93,13 @@ public class MainActivity extends AppCompatActivity
                 startActivity(new Intent(this, SettingsActivity.class));
                 break;
             case R.id.nav_viewpoint:
-                getSupportActionBar().setTitle(ViewPointListFragment.TITLE_TEXT);
-                trans.replace(R.id.contentFrame, mViewPointListFragment);
+                getSupportActionBar().setTitle(ViewPointsFragment.TITLE_TEXT);
+                trans.replace(R.id.contentFrame, mViewPointsFragment);
                 trans.commit();
                 break;
             case R.id.nav_topics:
-                getSupportActionBar().setTitle(TopicListFragment.TITLE_TEXT);
-                trans.replace(R.id.contentFrame, mTopicListFragment);
+                getSupportActionBar().setTitle(HeadlinesFragment.TITLE_TEXT);
+                trans.replace(R.id.contentFrame, mHeadlinesFragment);
                 trans.commit();
                 break;
             case R.id.nav_about:

@@ -13,38 +13,46 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
+
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.error.VolleyError;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import product.presisco.yourdrivers.Article.ArticleActivity;
-import product.presisco.yourdrivers.DataModel.Topic;
-import product.presisco.yourdrivers.Network.Constants;
-import product.presisco.yourdrivers.Network.Task.GetTopics;
+import product.presisco.yourdrivers.DataModel.Category;
+import product.presisco.yourdrivers.DataModel.Headline;
+import product.presisco.yourdrivers.Network.Task.ExtendedRequest;
+import product.presisco.yourdrivers.Network.Task.HeadlineRequest;
+import product.presisco.yourdrivers.Network.VolleyPlusRes;
 import product.presisco.yourdrivers.R;
 
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link TopicListFragment.OnFragmentInteractionListener} interface
+ * {@link HeadlinesFragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
- * Use the {@link TopicListFragment#newInstance} factory method to
+ * Use the {@link HeadlinesFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class TopicListFragment extends Fragment {
+public class HeadlinesFragment extends Fragment {
     public static final String TITLE_TEXT = "Topics";
+    public static final String CATEGORY = "category";
+
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String TAG = TopicListFragment.class.getSimpleName();
-    TopicListAdapter mTopicListAdapter;
+    private static final String TAG = HeadlinesFragment.class.getSimpleName();
+    HeadlinesListAdapter mHeadlinesListAdapter;
     RecyclerView mArticleList;
     SwipeRefreshLayout mSwipeRefreshLayout;
-    List<Topic> mTopics = new ArrayList<>();
+    List<Headline> mHeadlines = new ArrayList<>();
     private boolean isFirstLaunch = true;
-    private boolean isRefresh = true;
-    private String tid = "0";
+    private Category currentCategory;
     private int currentPosition = 0;
 
-    public TopicListFragment() {
+    public HeadlinesFragment() {
         // Required empty public constructor
     }
 
@@ -52,13 +60,15 @@ public class TopicListFragment extends Fragment {
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
      *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment TopicListFragment.
+     * @param category Browse category.
+     * @return A new instance of fragment HeadlinesFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static TopicListFragment newInstance(String param1, String param2) {
-        TopicListFragment fragment = new TopicListFragment();
+    public static HeadlinesFragment newInstance(Category category) {
+        HeadlinesFragment fragment = new HeadlinesFragment();
+        Bundle bundle = new Bundle();
+        bundle.putSerializable(CATEGORY, category);
+        fragment.setArguments(bundle);
         return fragment;
     }
 
@@ -74,6 +84,9 @@ public class TopicListFragment extends Fragment {
         Log.d(TAG, "onCreate");
         if (savedInstanceState != null) {
             isFirstLaunch = false;
+        }
+        if (getArguments() != null) {
+            currentCategory = (Category) getArguments().getSerializable(CATEGORY);
         }
     }
 
@@ -91,10 +104,10 @@ public class TopicListFragment extends Fragment {
         Log.d(TAG, "onViewCreated");
         mArticleList = (RecyclerView) view.findViewById(R.id.mainList);
         mArticleList.setLayoutManager(new LinearLayoutManager(getContext()));
-        mTopicListAdapter = new TopicListAdapter(new OnTopicClickedListener(),
+        mHeadlinesListAdapter = new HeadlinesListAdapter(new OnTopicClickedListener(),
                 new OnAppendListener());
-        mTopicListAdapter.setDataSrc(mTopics);
-        mArticleList.setAdapter(mTopicListAdapter);
+        mHeadlinesListAdapter.setDataSrc(mHeadlines);
+        mArticleList.setAdapter(mHeadlinesListAdapter);
 
         mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.mainSwipeRefresh);
         mSwipeRefreshLayout.setColorSchemeResources(R.color.material_light_blue_500, R.color.material_red_500);
@@ -107,7 +120,7 @@ public class TopicListFragment extends Fragment {
             }
         });
 
-        refreshContent(new String[]{GetTopics.MODE_REFRESH, "0"});
+        requestContent(OnLoadCompleteListener.MODE_NEW);
 
         if (isFirstLaunch) {
             mSwipeRefreshLayout.setRefreshing(true);
@@ -150,9 +163,28 @@ public class TopicListFragment extends Fragment {
         Log.d(TAG, "onSaveInstanceState");
     }
 
-    private void refreshContent(String... params) {
+    private void requestContent(String mode) {
         mSwipeRefreshLayout.setRefreshing(true);
-        new GetTopics().setOnLoadTopicsCompleteListener(new OnFetchTopicsComplete()).execute(params);
+        HeadlineRequest request = null;
+        String max_id = "";
+
+        switch (mode) {
+            case OnLoadCompleteListener.MODE_MORE:
+                max_id = mHeadlines.get(mHeadlines.size() - 1).id;
+                break;
+            case OnLoadCompleteListener.MODE_NEW:
+                max_id = "99999999";
+                break;
+        }
+
+        VolleyPlusRes.getRequestQueue().add(
+                new HeadlineRequest(
+                        Request.Method.GET
+                        , currentCategory
+                        , max_id
+                        , new OnLoadCompleteListener(mode)
+                        , new OnLoadFailedListener()
+                ));
     }
 
     /**
@@ -173,43 +205,57 @@ public class TopicListFragment extends Fragment {
     private class OnRefresh implements SwipeRefreshLayout.OnRefreshListener {
         @Override
         public void onRefresh() {
-            isRefresh = true;
-            refreshContent(new String[]{GetTopics.MODE_REFRESH, "0"});
+            requestContent(OnLoadCompleteListener.MODE_NEW);
         }
     }
 
-    private class OnFetchTopicsComplete implements GetTopics.OnLoadTopicsCompleteListener {
+    private class OnLoadCompleteListener implements ExtendedRequest.OnLoadCompleteListener<List<Headline>> {
+        public static final String MODE_NEW = "new";
+        public static final String MODE_MORE = "more";
+        private String mode = "";
+
+        public OnLoadCompleteListener(String _mode) {
+            mode = _mode;
+        }
+
         @Override
-        public void onLoadComplete(List<Topic> src) {
-            if (mTopics.size() == 0 || mTopics == null) {
-                mTopics = src;
-            } else if (isRefresh) {
-                mTopics = src;
-            } else {
-                mTopics.addAll(mTopics.size(), src);
+        public void onLoadComplete(List<Headline> src) {
+            switch (mode) {
+                case MODE_NEW:
+                    mHeadlines.clear();
+                case MODE_MORE:
+                    mHeadlines.addAll(src);
+                    mHeadlinesListAdapter.setDataSrc(mHeadlines);
+                    mHeadlinesListAdapter.notifyDataSetChanged();
+                default:
+                    mSwipeRefreshLayout.setRefreshing(false);
+                    return;
             }
-            mTopicListAdapter.setDataSrc(mTopics);
-            mTopicListAdapter.notifyDataSetChanged();
-            mSwipeRefreshLayout.setRefreshing(false);
         }
     }
 
-    private class OnTopicClickedListener implements TopicListAdapter.OnContentItemClickedListener {
+    private class OnTopicClickedListener implements HeadlinesListAdapter.OnContentItemClickedListener {
         @Override
         public void onContentItemClicked(int pos) {
-            Log.d(TAG, "selected topic:" + mTopics.get(pos).id + "/" + mTopics.get(pos).title + "/" + mTopics.get(pos).link);
+            Log.d(TAG, "selected topic:" + mHeadlines.get(pos).id + "/" + mHeadlines.get(pos).title + "/" + mHeadlines.get(pos).link);
             //Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url_addr));
             Intent intent = new Intent(getContext(), ArticleActivity.class);
-            intent.putExtra(ArticleActivity.PAGE_LINK, mTopics.get(pos).link);
+            intent.putExtra(ArticleActivity.PAGE_LINK, mHeadlines.get(pos).link);
             startActivity(intent);
         }
     }
 
-    private class OnAppendListener implements TopicListAdapter.OnFooterShowedListener {
+    private class OnAppendListener implements HeadlinesListAdapter.OnFooterShowedListener {
         @Override
         public void onFooterShowed() {
-            isRefresh = false;
-            refreshContent(new String[]{GetTopics.MODE_GET_MORE, tid, mTopics.get(mTopics.size() - 1).id});
+            requestContent(OnLoadCompleteListener.MODE_MORE);
+        }
+    }
+
+    private class OnLoadFailedListener implements Response.ErrorListener {
+        @Override
+        public void onErrorResponse(VolleyError volleyError) {
+            Toast.makeText(getActivity(), volleyError.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
 }

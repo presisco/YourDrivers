@@ -19,12 +19,10 @@ import product.presisco.yourdrivers.DataModel.Article;
 /**
  * Created by presisco on 2016/4/29.
  */
-public class ArticleRequest extends Request<Article> {
-    private OnLoadCompleteListener mListener;
+public class ArticleRequest extends ExtendedRequest<Article> {
 
-    public ArticleRequest(int method, String url, OnLoadCompleteListener loadCompleteListener, Response.ErrorListener listener) {
-        super(method, url, listener);
-        mListener = loadCompleteListener;
+    public ArticleRequest(int method, String url, ExtendedRequest.OnLoadCompleteListener<Article> loadCompleteListener, Response.ErrorListener listener) {
+        super(method, url, loadCompleteListener, listener);
     }
 
     @Override
@@ -58,7 +56,21 @@ public class ArticleRequest extends Request<Article> {
         for (Element ele : contentEles) {
             switch (ele.tagName()) {
                 case "p":
-                    if (ele.hasText()) {
+                    if (ele.hasAttr("align")) {
+                        if (!isMergingImgs) {
+                            art.contents.add(new Article.Text(textBuff));
+                            isMergingImgs = true;
+                        }
+                        images.add(ele.getElementsByTag("img").first().attr("src"));
+                        String text = ele.text();
+                        if (ele.text() != "") {
+                            art.contents.add(new Article.Images(images.toArray(new String[0])));
+                            images.clear();
+                            isMergingImgs = false;
+                            textBuff = "";
+                            art.contents.add(new Article.Text(text));
+                        }
+                    } else {
                         if (isMergingImgs) {
                             art.contents.add(new Article.Images(images.toArray(new String[0])));
                             images.clear();
@@ -67,12 +79,6 @@ public class ArticleRequest extends Request<Article> {
                         } else {
                             textBuff = textBuff + "\n" + ele.text();
                         }
-                    } else {
-                        if (!isMergingImgs) {
-                            art.contents.add(new Article.Text(textBuff));
-                            isMergingImgs = true;
-                        }
-                        images.add(ele.getElementsByTag("img").first().attr("src"));
                     }
                     break;
                 case "div":
@@ -97,14 +103,4 @@ public class ArticleRequest extends Request<Article> {
         textBuff = null;
     }
 
-    @Override
-    protected void deliverResponse(Article article) {
-        if (mListener != null) {
-            mListener.onLoadComplete(article);
-        }
-    }
-
-    public interface OnLoadCompleteListener {
-        void onLoadComplete(Article art);
-    }
 }
