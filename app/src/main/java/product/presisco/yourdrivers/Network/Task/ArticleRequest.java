@@ -63,14 +63,10 @@ public class ArticleRequest extends Request<Article> {
                             art.contents.add(new Article.Images(images.toArray(new String[0])));
                             images.clear();
                             isMergingImgs = false;
-                            textBuff = "";
+                            textBuff = ele.text();
+                        } else {
+                            textBuff = textBuff + "\n" + ele.text();
                         }
-                        textBuff += ele.text();
-//                            Element str_ele=ele.getElementsByTag("strong").first();
-//                            if (str_ele != null) {
-//                                String strong=str_ele.text();
-//                                textBuff += strong;
-//                            }
                     } else {
                         if (!isMergingImgs) {
                             art.contents.add(new Article.Text(textBuff));

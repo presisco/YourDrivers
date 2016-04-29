@@ -7,6 +7,7 @@
         android:id="@+id/textContent"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="New Text"
+        android:lineSpacingMultiplier="1.5"
+        android:text="New Text\nNew Text"
         android:textSize="@dimen/size_text_medium" />
 </FrameLayout>
