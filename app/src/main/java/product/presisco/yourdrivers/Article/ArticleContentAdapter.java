@@ -51,7 +51,7 @@ public class ArticleContentAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     public int getItemViewType(int position) {
         if (position == 0) {
             return VIEWTYPE_TITLE;
-        } else if (position == getItemCount() - 1) {
+        } else if (position == getItemCount() + 1) {
             return VIEWTYPE_FOOTER;
         } else if (mArticle.contents.get(position - 1).type == Article.Text.TAG) {
             return VIEWTYPE_TEXT;
@@ -102,9 +102,11 @@ public class ArticleContentAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             if (imagesHolder.imagesContainer.getChildCount() < images.images.length) {
                 for (int i = imagesHolder.imagesContainer.getChildCount(); i < images.images.length; ++i) {
                     ImageView imageView = new ImageView(mContext);
+                    imageView.setAdjustViewBounds(true);
+                    imageView.setScaleType(ImageView.ScaleType.FIT_XY);
                     imagesHolder.imagesContainer.addView(imageView, i,
-                            new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
-                                    ViewGroup.LayoutParams.MATCH_PARENT));
+                            new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
+                                    LinearLayout.LayoutParams.MATCH_PARENT));
                 }
             } else {
                 imagesHolder.imagesContainer.removeViews(images.images.length,
