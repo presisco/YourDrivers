@@ -4,5 +4,6 @@
     <dimen name="size_text_medium">16sp</dimen>
     <dimen name="size_text_small">13sp</dimen>
     <dimen name="size_text_large">20sp</dimen>
-    
+    <dimen name="size_text_tiny">10sp</dimen>
+
 </resources>

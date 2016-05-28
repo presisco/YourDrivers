@@ -1,19 +1,21 @@
 package product.presisco.yourdrivers.Article;
 
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.error.VolleyError;
 
+import product.presisco.yourdrivers.Comment.CommentFragment;
 import product.presisco.yourdrivers.DataModel.Article;
-import product.presisco.yourdrivers.Network.Constants;
+import product.presisco.yourdrivers.DataModel.CommentSet;
 import product.presisco.yourdrivers.Network.Task.ArticleRequest;
 import product.presisco.yourdrivers.Network.Task.ExtendedRequest;
 import product.presisco.yourdrivers.Network.VolleyPlusRes;
@@ -21,38 +23,64 @@ import product.presisco.yourdrivers.R;
 
 public class ArticleActivity extends AppCompatActivity {
     public static final String TAG = ArticleActivity.class.getSimpleName();
-    public static final String PAGE_LINK = "page_link";
+    public static final String ARTICLE_ID = "article_id";
 
-    String page_link = "";
+    String article_id = "";
     RecyclerView mContentView;
     ArticleContentAdapter mAdapter;
     Article mArticle;
     ProgressBar mLoading;
+    CommentFragment mCommentFragment;
+
+    TextView textTitle;
+    TextView textWriter;
+    TextView textDate;
+
+    View headerView;
+    View footerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_article);
-        page_link = getIntent().getStringExtra(PAGE_LINK);
+        article_id = getIntent().getStringExtra(ARTICLE_ID);
 
-        mContentView = (RecyclerView) findViewById(R.id.contentContainer);
+        textTitle = (TextView) findViewById(R.id.textTitle);
+        textWriter = (TextView) findViewById(R.id.textWriter);
+        textDate = (TextView) findViewById(R.id.textDate);
+
+        headerView = findViewById(R.id.includeHeader);
+        headerView.setVisibility(View.GONE);
+        footerView = findViewById(R.id.includeFooter);
+
+        OnPageListener listener = new OnPageListener();
+        footerView.findViewById(R.id.textPrevious).setOnClickListener(listener);
+        footerView.findViewById(R.id.textAllLeft).setOnClickListener(listener);
+        footerView.findViewById(R.id.textNext).setOnClickListener(listener);
+
+        mContentView = (RecyclerView) findViewById(R.id.contentList);
         mLoading = (ProgressBar) findViewById(R.id.progressBar);
 
-        mAdapter = new ArticleContentAdapter(this, new OnPageListener());
+        mAdapter = new ArticleContentAdapter(this);
         mContentView.setLayoutManager(new LinearLayoutManager(this));
 
-        getContent(page_link);
+        mCommentFragment = CommentFragment.newInstance(false, article_id);
+        FragmentTransaction trans = getSupportFragmentManager().beginTransaction();
+        trans.replace(R.id.commentFrame, mCommentFragment);
+        trans.commit();
 
+        getContent(article_id);
     }
 
-    private void getContent(String relative_url) {
-        if (relative_url == "" || relative_url == null || relative_url.equals(Constants.MOBILE_WEB_HOST)) {
+    private void getContent(String id) {
+        if (id == "" || id == null) {
             return;
         }
-        VolleyPlusRes.getRequestQueue().add(new ArticleRequest(Request.Method.GET,
-                Constants.MOBILE_WEB_HOST + relative_url,
-                new OnLoadCompleteListener(),
-                new OnLoadFailedListener()));
+        VolleyPlusRes.getRequestQueue().add(
+                new ArticleRequest(
+                        id,
+                        new OnLoadCompleteListener(),
+                        new OnLoadFailedListener()));
         mLoading.setVisibility(View.VISIBLE);
         mContentView.setVisibility(View.INVISIBLE);
     }
@@ -62,6 +90,10 @@ public class ArticleActivity extends AppCompatActivity {
         @Override
         public void onLoadComplete(Article art) {
             mArticle = art;
+            textTitle.setText(mArticle.header.title);
+            textWriter.setText(mArticle.header.writer);
+            textDate.setText(mArticle.header.date);
+            headerView.setVisibility(View.VISIBLE);
             mAdapter.updateDataSrc(mArticle);
             mContentView.setAdapter(mAdapter);
             mAdapter.notifyDataSetChanged();
@@ -77,20 +109,30 @@ public class ArticleActivity extends AppCompatActivity {
         }
     }
 
-    private class OnPageListener implements ArticleContentAdapter.OnPageSelectionListener {
-        @Override
-        public void onAllLeft() {
-            getContent(mArticle.all_link);
-        }
+    private class OnPageListener implements View.OnClickListener {
 
+        /**
+         * Called when a view has been clicked.
+         *
+         * @param v The view that was clicked.
+         */
         @Override
-        public void onNextPage() {
-            getContent(mArticle.next_link);
-        }
-
-        @Override
-        public void onPreviousPage() {
-            getContent(mArticle.prev_link);
+        public void onClick(View v) {
+            String link = "";
+            switch (v.getId()) {
+                case R.id.textPrevious:
+                    link = mArticle.prev_link;
+                    break;
+                case R.id.textAllLeft:
+                    link = mArticle.all_link;
+                    break;
+                case R.id.textNext:
+                    link = mArticle.next_link;
+                    break;
+                default:
+                    return;
+            }
+            getContent(link);
         }
     }
 }

@@ -15,7 +15,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.error.VolleyError;
 
@@ -178,9 +177,7 @@ public class HeadlinesFragment extends Fragment {
         }
 
         VolleyPlusRes.getRequestQueue().add(
-                new HeadlineRequest(
-                        Request.Method.GET
-                        , currentCategory
+                new HeadlineRequest(currentCategory
                         , max_id
                         , new OnLoadCompleteListener(mode)
                         , new OnLoadFailedListener()
@@ -240,7 +237,7 @@ public class HeadlinesFragment extends Fragment {
             Log.d(TAG, "selected topic:" + mHeadlines.get(pos).id + "/" + mHeadlines.get(pos).title + "/" + mHeadlines.get(pos).link);
             //Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url_addr));
             Intent intent = new Intent(getContext(), ArticleActivity.class);
-            intent.putExtra(ArticleActivity.PAGE_LINK, mHeadlines.get(pos).link);
+            intent.putExtra(ArticleActivity.ARTICLE_ID, mHeadlines.get(pos).id);
             startActivity(intent);
         }
     }

@@ -27,8 +27,8 @@ public class CategoryRequest extends ExtendedRequest<List<Category>> {
     private static final String ID_CATEGORY = "nav";
     private static final String ID_SUBCATEGORY = "subnav";
 
-    public CategoryRequest(int method, String url, OnLoadCompleteListener<List<Category>> loadCompleteListener, Response.ErrorListener listener) {
-        super(method, url, loadCompleteListener, listener);
+    public CategoryRequest(OnLoadCompleteListener<List<Category>> loadCompleteListener, Response.ErrorListener listener) {
+        super(Method.GET, loadCompleteListener, listener);
     }
 
     private static String getId(String link) {
@@ -41,13 +41,7 @@ public class CategoryRequest extends ExtendedRequest<List<Category>> {
 
     @Override
     protected Response<List<Category>> parseNetworkResponse(NetworkResponse networkResponse) {
-        String raw = "";
-        try {
-            raw = new String(networkResponse.data, HttpHeaderParser.parseCharset(networkResponse.headers));
-        } catch (UnsupportedEncodingException e) {
-            raw = new String(networkResponse.data);
-        }
-        return Response.success(getNavTypesFromEle(Jsoup.parse(raw))
+        return Response.success(getNavTypesFromEle(Jsoup.parse(getStringFromResponse(networkResponse)))
                 , HttpHeaderParser.parseCacheHeaders(networkResponse));
     }
 

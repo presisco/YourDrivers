@@ -28,19 +28,15 @@ public class ViewPointRequest extends ExtendedRequest<List<Viewpoint>> {
     private static final String CLASSNAME_VIEWPOINT = "shidian";
     private static final String CLASSNAME_WRAPPER = "swipe-wrap";
 
-    public ViewPointRequest(int method, OnLoadCompleteListener<List<Viewpoint>> onLoadCompleteListener, Response.ErrorListener listener) {
-        super(method, Constants.MOBILE_WEB_HOST, onLoadCompleteListener, listener);
+    public ViewPointRequest(OnLoadCompleteListener<List<Viewpoint>> onLoadCompleteListener, Response.ErrorListener listener) {
+        super(Method.GET, onLoadCompleteListener, listener);
     }
 
     @Override
     protected Response<List<Viewpoint>> parseNetworkResponse(NetworkResponse networkResponse) {
-        String raw = "";
-        try {
-            raw = new String(networkResponse.data, HttpHeaderParser.parseCharset(networkResponse.headers));
-        } catch (UnsupportedEncodingException e) {
-            raw = new String(networkResponse.data);
-        }
-        return Response.success(getViewpointsFromEle(Jsoup.parse(raw).getElementsByClass(CLASSNAME_VIEWPOINT).first())
+        return Response.success(getViewpointsFromEle(
+                Jsoup.parse(getStringFromResponse(networkResponse))
+                        .getElementsByClass(CLASSNAME_VIEWPOINT).first())
                 , HttpHeaderParser.parseCacheHeaders(networkResponse));
     }
 
@@ -51,7 +47,9 @@ public class ViewPointRequest extends ExtendedRequest<List<Viewpoint>> {
         for (Element ele : eles) {
             Viewpoint vp = new Viewpoint();
             vp.title = ele.getElementsByClass("left").text();
-            vp.link = ele.getElementsByTag("a").attr(Constants.ATTR_LINK);
+            String link = ele.getElementsByTag("a").attr(Constants.ATTR_LINK);
+            vp.link = link;
+            vp.id = link.substring(link.lastIndexOf("/") + 1, link.indexOf(".html"));
             vp.icon = ele.getElementsByTag("img").attr("src");
             vps.add(vp);
             Log.d("parse", "title:" + vp.title + "/link:" + vp.link);

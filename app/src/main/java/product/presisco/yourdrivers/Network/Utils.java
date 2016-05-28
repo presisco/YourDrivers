@@ -11,12 +11,13 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by presisco on 2016/4/20.
  */
 public class Utils {
-    public static URL getURLWithParams(String path, List<Pair> params) throws Exception {
+    public static URL getURLWithParams(String path, Map<String, String> params) throws Exception {
         String full = path;
         if (params == null || params.size() == 0) {
             return new URL(path);
@@ -35,10 +36,11 @@ public class Utils {
         return resultBuff.toString();
     }
 
-    public static String getFormParams(List<Pair> orig_params) throws Exception {
+    public static String getFormParams(Map<String, String> orig_params) {
         List<String> cooked_params = new ArrayList<>();
-        for (Pair pair : orig_params) {
-            cooked_params.add(pair.first + "=" + URLEncoder.encode((String) pair.second, "UTF-8"));
+        for (String key : orig_params.keySet()) {
+//            cooked_params.add(pair.first + "=" + URLEncoder.encode((String) pair.second, "UTF-8"));
+            cooked_params.add(key + "=" + orig_params.get(key));
         }
         return TextUtils.join("&", cooked_params);
     }

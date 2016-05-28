@@ -4,7 +4,6 @@ import android.util.Log;
 
 import com.android.volley.NetworkResponse;
 import com.android.volley.Response;
-import com.android.volley.error.VolleyError;
 import com.android.volley.toolbox.HttpHeaderParser;
 
 import org.jsoup.Jsoup;
@@ -39,8 +38,8 @@ public class HeadlineRequest extends ExtendedRequest<List<Headline>> {
     private static final String ATTR_AD = "id";
     private static final String ATTR_NORMAL_TITLE = "data-id";
 
-    public HeadlineRequest(int method, Category category, String max_id, OnLoadCompleteListener<List<Headline>> onLoadCompleteListener, Response.ErrorListener listener) {
-        super(method, Constants.MOBILE_WEB_HOST + Constants.MOBILE_GET_MORE_LIST, onLoadCompleteListener, listener);
+    public HeadlineRequest(Category category, String max_id, OnLoadCompleteListener<List<Headline>> onLoadCompleteListener, Response.ErrorListener listener) {
+        super(Method.GET, Constants.REQUEST_MORE_HEADLINES, onLoadCompleteListener, listener);
         Map<String, String> params = new HashMap<>();
         switch (category.getType()) {
             case Constants.NEWS_CATEGORY:
@@ -103,14 +102,8 @@ public class HeadlineRequest extends ExtendedRequest<List<Headline>> {
 
     @Override
     protected Response<List<Headline>> parseNetworkResponse(NetworkResponse networkResponse) {
-        String raw;
-        try {
-            raw = new String(networkResponse.data, HttpHeaderParser.parseCharset(networkResponse.headers));
-        } catch (UnsupportedEncodingException e) {
-            raw = new String(networkResponse.data);
-        }
-
-        return Response.success(getHeadlines(Jsoup.parse(raw).body()), HttpHeaderParser.parseCacheHeaders(networkResponse));
+        return Response.success(getHeadlines(Jsoup.parse(getStringFromResponse(networkResponse)).body())
+                , HttpHeaderParser.parseCacheHeaders(networkResponse));
     }
 
     private List<Headline> getHeadlines(Element parent) {

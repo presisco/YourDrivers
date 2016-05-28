@@ -8,10 +8,8 @@ import java.util.List;
  * Created by presisco on 2016/4/29.
  */
 public class Article {
-    public List<Node> contents = new LinkedList<>();
-    public String title;
-    public String writer;
-    public String date;
+    public List<Node> contents;
+    public Header header;
     public String comm_link;
     public boolean isMultPage = false;
     public String prev_link = "";
@@ -19,6 +17,11 @@ public class Article {
     public String all_link = "";
     public String ref_name = "";
     public String ref_link = "";
+
+    public Article() {
+        header = new Header();
+        contents = new LinkedList<>();
+    }
 
     public static class Node {
         public String type = "";
@@ -60,5 +63,12 @@ public class Article {
             super(TAG);
             images = urls;
         }
+    }
+
+    public static class Header {
+        public String tid;
+        public String title;
+        public String writer;
+        public String date;
     }
 }

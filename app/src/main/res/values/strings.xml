@@ -21,4 +21,20 @@
     <string name="text_next_page">下一页</string>
     <string name="text_all_left">余下全文</string>
 
+    <string name="text_click_to_show_more">点击加载更多</string>
+
+    <string name="text_comment_type_date">最新评论</string>
+    <string name="text_comment_type_heat">最热评论</string>
+    <string name="text_comment_order_ascending">新</string>
+    <string name="text_comment_order_descending">旧</string>
+    <string name="text_report">举报</string>
+    <string name="text_support">支持</string>
+    <string name="text_oppose">反对</string>
+    <string name="text_reply">回复</string>
+    <string name="text_quote">原帖</string>
+
+    <string name="text_anonymous">游客</string>
+
+    <string name="text_category">导航</string>
+
 </resources>

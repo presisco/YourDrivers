@@ -2,6 +2,7 @@ package product.presisco.yourdrivers.Article;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,34 +29,23 @@ public class ArticleContentAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     private static final int VIEWTYPE_IMAGES = 2;
     private static final int VIEWTYPE_FOOTER = 3;
     private Article mArticle;
-    private OnPageSelectionListener mPageSelectionListener;
     private Context mContext;
 
-    public ArticleContentAdapter(Context context, OnPageSelectionListener pageSelectionListener) {
+    public ArticleContentAdapter(Context context) {
         super();
         mContext = context;
-        mPageSelectionListener = pageSelectionListener;
     }
 
     @Override
     public int getItemCount() {
-        int count = 1;
-        if (mArticle.isMultPage) {
-            ++count;
-        }
-        count += mArticle.contents.size();
-        return count;
+        return mArticle.contents.size();
     }
 
     @Override
     public int getItemViewType(int position) {
-        if (position == 0) {
-            return VIEWTYPE_TITLE;
-        } else if (position == mArticle.contents.size() + 1) {
-            return VIEWTYPE_FOOTER;
-        } else if (mArticle.contents.get(position - 1).type == Article.Text.TAG) {
+        if (mArticle.contents.get(position).type == Article.Text.TAG) {
             return VIEWTYPE_TEXT;
-        } else if (mArticle.contents.get(position - 1).type == Article.Images.TAG) {
+        } else if (mArticle.contents.get(position).type == Article.Images.TAG) {
             return VIEWTYPE_IMAGES;
         } else {
             return VIEWTYPE_UNKNOWN;
@@ -72,17 +62,11 @@ public class ArticleContentAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         LayoutInflater li = LayoutInflater.from(mContext);
         RecyclerView.ViewHolder vh = null;
         switch (viewType) {
-            case VIEWTYPE_TITLE:
-                vh = new TitleHolder(li.inflate(R.layout.article_title, parent, false));
-                break;
             case VIEWTYPE_TEXT:
                 vh = new TextHolder(li.inflate(R.layout.article_content_text, parent, false));
                 break;
             case VIEWTYPE_IMAGES:
                 vh = new ImagesHolder(li.inflate(R.layout.article_content_images, parent, false));
-                break;
-            case VIEWTYPE_FOOTER:
-                vh = new FooterHolder(li.inflate(R.layout.article_page_selection, parent, false));
                 break;
             default:
                 Log.d(TAG, "unrecognized viewtype:" + viewType);
@@ -94,11 +78,11 @@ public class ArticleContentAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         if (holder instanceof TextHolder) {
             TextHolder textHolder = (TextHolder) holder;
-            Article.Text text = (Article.Text) mArticle.contents.get(position - 1);
-            textHolder.content.setText(text.text);
+            Article.Text text = (Article.Text) mArticle.contents.get(position);
+            textHolder.content.setText(Html.fromHtml(text.text));
         } else if (holder instanceof ImagesHolder) {
             ImagesHolder imagesHolder = (ImagesHolder) holder;
-            Article.Images images = (Article.Images) mArticle.contents.get(position - 1);
+            Article.Images images = (Article.Images) mArticle.contents.get(position);
             if (imagesHolder.imagesContainer.getChildCount() < images.images.length) {
                 for (int i = imagesHolder.imagesContainer.getChildCount(); i < images.images.length; ++i) {
                     ImageView imageView = new ImageView(mContext);
@@ -117,24 +101,11 @@ public class ArticleContentAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                         ImageLoader.getImageListener((ImageView) imagesHolder.imagesContainer.getChildAt(i),
                                 R.drawable.empty_photo, R.drawable.error_image));
             }
-        } else if (holder instanceof TitleHolder) {
-            TitleHolder titleHolder = (TitleHolder) holder;
-            titleHolder.title.setText(mArticle.title);
-            titleHolder.writer.setText(mArticle.writer);
-            titleHolder.date.setText(mArticle.date);
         }
     }
 
     public void updateDataSrc(Article art) {
         mArticle = art;
-    }
-
-    public interface OnPageSelectionListener {
-        void onNextPage();
-
-        void onPreviousPage();
-
-        void onAllLeft();
     }
 
     private class TextHolder extends RecyclerView.ViewHolder {
@@ -152,43 +123,6 @@ public class ArticleContentAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         public ImagesHolder(View itemView) {
             super(itemView);
             imagesContainer = (LinearLayout) itemView.findViewById(R.id.imagesContainer);
-        }
-    }
-
-    private class FooterHolder extends RecyclerView.ViewHolder {
-        public FooterHolder(View itemView) {
-            super(itemView);
-            itemView.findViewById(R.id.textPrevious).setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    mPageSelectionListener.onPreviousPage();
-                }
-            });
-            itemView.findViewById(R.id.textAllLeft).setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    mPageSelectionListener.onAllLeft();
-                }
-            });
-            itemView.findViewById(R.id.textNext).setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    mPageSelectionListener.onNextPage();
-                }
-            });
-        }
-    }
-
-    private class TitleHolder extends RecyclerView.ViewHolder {
-        final TextView title;
-        final TextView writer;
-        final TextView date;
-
-        public TitleHolder(View itemView) {
-            super(itemView);
-            title = (TextView) itemView.findViewById(R.id.textTitle);
-            writer = (TextView) itemView.findViewById(R.id.textWriter);
-            date = (TextView) itemView.findViewById(R.id.textDate);
         }
     }
 }

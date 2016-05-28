@@ -4,6 +4,7 @@ package product.presisco.yourdrivers.DataModel;
  * Created by presisco on 2016/4/25.
  */
 public class Viewpoint {
+    public String id;
     public String link;
     public String icon;
     public String title;
@@ -11,4 +12,5 @@ public class Viewpoint {
     public Viewpoint() {
 
     }
+
 }

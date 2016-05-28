@@ -12,6 +12,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import product.presisco.yourdrivers.ContentFrames.CategoryFragment;
 import product.presisco.yourdrivers.ContentFrames.HeadlinesFragment;
 import product.presisco.yourdrivers.ContentFrames.ViewPointsFragment;
 import product.presisco.yourdrivers.DataModel.Category;
@@ -22,6 +23,7 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
     ViewPointsFragment mViewPointsFragment;
     HeadlinesFragment mHeadlinesFragment;
+    CategoryFragment mCategoryFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +46,7 @@ public class MainActivity extends AppCompatActivity
 
         mViewPointsFragment = ViewPointsFragment.newInstance();
         mHeadlinesFragment = HeadlinesFragment.newInstance(new Category("all", Constants.NEWS_CATEGORY, "0"));
+        mCategoryFragment = CategoryFragment.newInstance();
 
         FragmentTransaction trans = getSupportFragmentManager().beginTransaction();
         trans.replace(R.id.contentFrame, mViewPointsFragment);
@@ -93,12 +96,17 @@ public class MainActivity extends AppCompatActivity
                 startActivity(new Intent(this, SettingsActivity.class));
                 break;
             case R.id.nav_viewpoint:
-                getSupportActionBar().setTitle(ViewPointsFragment.TITLE_TEXT);
+                getSupportActionBar().setTitle(getResources().getString(R.string.text_viewpoints));
                 trans.replace(R.id.contentFrame, mViewPointsFragment);
                 trans.commit();
                 break;
             case R.id.nav_topics:
-                getSupportActionBar().setTitle(HeadlinesFragment.TITLE_TEXT);
+                getSupportActionBar().setTitle(getResources().getString(R.string.text_topics));
+                trans.replace(R.id.contentFrame, mHeadlinesFragment);
+                trans.commit();
+                break;
+            case R.id.nav_category:
+                getSupportActionBar().setTitle(getResources().getString(R.string.text_category));
                 trans.replace(R.id.contentFrame, mHeadlinesFragment);
                 trans.commit();
                 break;

@@ -14,7 +14,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.error.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
@@ -25,7 +24,6 @@ import java.util.List;
 import product.presisco.yourdrivers.Article.ArticleActivity;
 import product.presisco.yourdrivers.DataModel.Viewpoint;
 import product.presisco.yourdrivers.Network.Task.ExtendedRequest;
-import product.presisco.yourdrivers.Network.Task.HeadlineRequest;
 import product.presisco.yourdrivers.Network.Task.ViewPointRequest;
 import product.presisco.yourdrivers.Network.VolleyPlusRes;
 import product.presisco.yourdrivers.R;
@@ -94,12 +92,7 @@ public class ViewPointsFragment extends Fragment implements ExtendedRequest.OnLo
     }
 
     private void loadData() {
-        VolleyPlusRes.getRequestQueue().add(
-                new ViewPointRequest(
-                        Request.Method.GET
-                        , this
-                        , this
-                ));
+        VolleyPlusRes.getRequestQueue().add(new ViewPointRequest(this, this));
     }
 
     @Override
@@ -157,7 +150,7 @@ public class ViewPointsFragment extends Fragment implements ExtendedRequest.OnLo
                     @Override
                     public void onClick(View v) {
                         Intent intent = new Intent(getContext(), ArticleActivity.class);
-                        intent.putExtra(ArticleActivity.PAGE_LINK, mViewPoints.get(getAdapterPosition()).link);
+                        intent.putExtra(ArticleActivity.ARTICLE_ID, mViewPoints.get(getAdapterPosition()).id);
 //                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(addr));
                         startActivity(intent);
                     }

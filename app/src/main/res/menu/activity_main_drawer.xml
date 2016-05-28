@@ -3,6 +3,11 @@
 
     <group android:checkableBehavior="single">
         <item
+            android:id="@+id/nav_category"
+            android:icon="@drawable/ic_menu_slideshow"
+            android:title="@string/text_category" />
+
+        <item
             android:id="@+id/nav_viewpoint"
             android:icon="@drawable/ic_menu_camera"
             android:title="@string/text_viewpoints" />

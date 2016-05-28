@@ -15,37 +15,35 @@ import java.util.ArrayList;
 import java.util.List;
 
 import product.presisco.yourdrivers.DataModel.Article;
+import product.presisco.yourdrivers.Network.Constants;
 
 /**
  * Created by presisco on 2016/4/29.
  */
 public class ArticleRequest extends ExtendedRequest<Article> {
+    String id;
 
-    public ArticleRequest(int method, String url, ExtendedRequest.OnLoadCompleteListener<Article> loadCompleteListener, Response.ErrorListener listener) {
-        super(method, url, loadCompleteListener, listener);
+    public ArticleRequest(String article_id, ExtendedRequest.OnLoadCompleteListener<Article> loadCompleteListener, Response.ErrorListener listener) {
+        super(Method.GET, Constants.REQUEST_ARITCLE.replace(Constants.REQUEST_ARITCLE_REPLACE, article_id), loadCompleteListener, listener);
+        id = article_id;
     }
 
     @Override
     protected Response<Article> parseNetworkResponse(NetworkResponse networkResponse) {
         Article parsed = new Article();
-        String raw;
-        try {
-            raw = new String(networkResponse.data, HttpHeaderParser.parseCharset(networkResponse.headers));
-        } catch (UnsupportedEncodingException e) {
-            raw = new String(networkResponse.data);
-        }
-        Document doc = Jsoup.parse(raw);
+        parsed.header.tid = id;
+        Document doc = Jsoup.parse(getStringFromResponse(networkResponse));
         Element bodyEle = doc.body();
-        addArticleHead(parsed, bodyEle.getElementsByClass("news_content").first());
+        addArticleHead(parsed.header, bodyEle.getElementsByClass("news_content").first());
         addArticleContent(parsed, bodyEle.getElementById("content"));
         return Response.success(parsed, HttpHeaderParser.parseCacheHeaders(networkResponse));
     }
 
-    private void addArticleHead(Article art, Element headEle) {
-        art.title = headEle.getElementsByClass("news_t").first().text();
+    private void addArticleHead(Article.Header head, Element headEle) {
+        head.title = headEle.getElementsByClass("news_t").first().text();
         Elements writerndate = headEle.getElementsByClass("news_t1").first().child(0).children();
-        art.writer = writerndate.first().text();
-        art.date = writerndate.get(2).text();
+        head.writer = writerndate.first().text();
+        head.date = writerndate.get(2).text();
     }
 
     private void addArticleContent(Article art, Element src) {
@@ -77,7 +75,7 @@ public class ArticleRequest extends ExtendedRequest<Article> {
                             isMergingImgs = false;
                             textBuff = ele.text();
                         } else {
-                            textBuff = textBuff + "\n" + ele.text();
+                            textBuff = textBuff + ele.toString();
                         }
                     }
                     break;
