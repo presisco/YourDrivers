@@ -3,6 +3,7 @@ package product.presisco.yourdrivers.Cache;
 import android.content.Context;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -18,6 +19,7 @@ public class HeadlineCache extends BaseCache<Headline> {
 
     public HeadlineCache(Context context) {
         super(context, TABLE_NAME, KEYS);
+        headlines = new HashSet<>();
     }
 
     public static HeadlineCache getInstance(Context context) {

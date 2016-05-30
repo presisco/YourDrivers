@@ -23,8 +23,8 @@ import java.util.List;
 
 import product.presisco.yourdrivers.Article.ArticleActivity;
 import product.presisco.yourdrivers.DataModel.Viewpoint;
-import product.presisco.yourdrivers.Network.Task.ExtendedRequest;
-import product.presisco.yourdrivers.Network.Task.ViewPointRequest;
+import product.presisco.yourdrivers.Network.Request.ExtendedRequest;
+import product.presisco.yourdrivers.Network.Request.ViewPointRequest;
 import product.presisco.yourdrivers.Network.VolleyPlusRes;
 import product.presisco.yourdrivers.R;
 

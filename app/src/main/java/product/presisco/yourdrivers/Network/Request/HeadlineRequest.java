@@ -1,4 +1,4 @@
-package product.presisco.yourdrivers.Network.Task;
+package product.presisco.yourdrivers.Network.Request;
 
 import android.util.Log;
 
@@ -10,7 +10,6 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

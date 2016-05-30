@@ -32,7 +32,4 @@ public class AppDBHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    public interface CreateTableInterface {
-        String getSQL();
-    }
 }

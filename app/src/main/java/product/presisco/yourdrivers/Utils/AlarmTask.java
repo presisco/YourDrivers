@@ -11,8 +11,11 @@ import product.presisco.yourdrivers.Network.VolleyPlusRes;
  * Created by presisco on 2016/5/30.
  */
 public class AlarmTask extends AsyncTask<Long, Void, Void> {
-    public AlarmTask() {
+    Action action;
+
+    public AlarmTask(Action _action) {
         super();
+        action = _action;
     }
 
     @Override
@@ -28,6 +31,7 @@ public class AlarmTask extends AsyncTask<Long, Void, Void> {
     @Override
     protected void onPostExecute(Void aVoid) {
         super.onPostExecute(aVoid);
+        action.onPostExecute();
     }
 
     public interface Action {

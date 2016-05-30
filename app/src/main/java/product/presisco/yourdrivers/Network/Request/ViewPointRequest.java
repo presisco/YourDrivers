@@ -1,19 +1,15 @@
-package product.presisco.yourdrivers.Network.Task;
+package product.presisco.yourdrivers.Network.Request;
 
 import android.util.Log;
-import android.view.View;
 
 import com.android.volley.NetworkResponse;
-import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.toolbox.HttpHeaderParser;
 
 import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 

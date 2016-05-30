@@ -1,4 +1,4 @@
-package product.presisco.yourdrivers.Network.Task;
+package product.presisco.yourdrivers.Network.Request;
 
 import android.util.Log;
 
@@ -7,15 +7,9 @@ import com.android.volley.Response;
 import com.android.volley.error.AuthFailureError;
 import com.android.volley.toolbox.HttpHeaderParser;
 import com.google.gson.Gson;
-import com.google.gson.stream.JsonReader;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import product.presisco.yourdrivers.DataModel.CommentSet;

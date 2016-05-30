@@ -1,6 +1,4 @@
-package product.presisco.yourdrivers.Network.Task;
-
-import android.util.Log;
+package product.presisco.yourdrivers.Network.Request;
 
 import com.android.volley.NetworkResponse;
 import com.android.volley.Response;
@@ -9,14 +7,11 @@ import com.android.volley.toolbox.HttpHeaderParser;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
 import product.presisco.yourdrivers.DataModel.Category;
-import product.presisco.yourdrivers.Network.Constants;
 
 /**
  * Created by presisco on 2016/5/28.

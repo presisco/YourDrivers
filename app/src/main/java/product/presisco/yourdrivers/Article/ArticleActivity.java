@@ -15,9 +15,8 @@ import com.android.volley.error.VolleyError;
 
 import product.presisco.yourdrivers.Comment.CommentFragment;
 import product.presisco.yourdrivers.DataModel.Article;
-import product.presisco.yourdrivers.DataModel.CommentSet;
-import product.presisco.yourdrivers.Network.Task.ArticleRequest;
-import product.presisco.yourdrivers.Network.Task.ExtendedRequest;
+import product.presisco.yourdrivers.Network.Request.ArticleRequest;
+import product.presisco.yourdrivers.Network.Request.ExtendedRequest;
 import product.presisco.yourdrivers.Network.VolleyPlusRes;
 import product.presisco.yourdrivers.R;
 
@@ -57,6 +56,7 @@ public class ArticleActivity extends AppCompatActivity {
         footerView.findViewById(R.id.textPrevious).setOnClickListener(listener);
         footerView.findViewById(R.id.textAllLeft).setOnClickListener(listener);
         footerView.findViewById(R.id.textNext).setOnClickListener(listener);
+        footerView.setVisibility(View.GONE);
 
         mContentView = (RecyclerView) findViewById(R.id.contentList);
         mLoading = (ProgressBar) findViewById(R.id.progressBar);
@@ -82,7 +82,7 @@ public class ArticleActivity extends AppCompatActivity {
                         new OnLoadCompleteListener(),
                         new OnLoadFailedListener()));
         mLoading.setVisibility(View.VISIBLE);
-        mContentView.setVisibility(View.INVISIBLE);
+        mContentView.setVisibility(View.GONE);
     }
 
     private class OnLoadCompleteListener implements ExtendedRequest.OnLoadCompleteListener<Article> {
@@ -98,7 +98,12 @@ public class ArticleActivity extends AppCompatActivity {
             mContentView.setAdapter(mAdapter);
             mAdapter.notifyDataSetChanged();
             mContentView.setVisibility(View.VISIBLE);
-            mLoading.setVisibility(View.INVISIBLE);
+            mLoading.setVisibility(View.GONE);
+            if (mArticle.isMultPage) {
+                footerView.setVisibility(View.VISIBLE);
+            } else {
+                footerView.setVisibility(View.GONE);
+            }
         }
     }
 

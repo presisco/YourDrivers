@@ -26,8 +26,8 @@ import product.presisco.yourdrivers.Article.ArticleActivity;
 import product.presisco.yourdrivers.Cache.HeadlineCache;
 import product.presisco.yourdrivers.DataModel.Category;
 import product.presisco.yourdrivers.DataModel.Headline;
-import product.presisco.yourdrivers.Network.Task.ExtendedRequest;
-import product.presisco.yourdrivers.Network.Task.HeadlineRequest;
+import product.presisco.yourdrivers.Network.Request.ExtendedRequest;
+import product.presisco.yourdrivers.Network.Request.HeadlineRequest;
 import product.presisco.yourdrivers.Network.VolleyPlusRes;
 import product.presisco.yourdrivers.R;
 
@@ -64,7 +64,6 @@ public class HeadlinesFragment extends Fragment {
      * @param category Browse category.
      * @return A new instance of fragment HeadlinesFragment.
      */
-    // TODO: Rename and change types and number of parameters
     public static HeadlinesFragment newInstance(Category category) {
         HeadlinesFragment fragment = new HeadlinesFragment();
         Bundle bundle = new Bundle();

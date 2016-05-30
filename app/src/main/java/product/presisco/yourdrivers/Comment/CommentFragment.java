@@ -20,9 +20,9 @@ import product.presisco.yourdrivers.DataModel.Article;
 import product.presisco.yourdrivers.DataModel.CommentSet;
 import product.presisco.yourdrivers.Network.Constants;
 import product.presisco.yourdrivers.Network.GeneralLoadFailedListener;
-import product.presisco.yourdrivers.Network.Task.CommentHeaderRequest;
-import product.presisco.yourdrivers.Network.Task.CommentRequest;
-import product.presisco.yourdrivers.Network.Task.ExtendedRequest;
+import product.presisco.yourdrivers.Network.Request.CommentHeaderRequest;
+import product.presisco.yourdrivers.Network.Request.CommentRequest;
+import product.presisco.yourdrivers.Network.Request.ExtendedRequest;
 import product.presisco.yourdrivers.Network.VolleyPlusRes;
 import product.presisco.yourdrivers.R;
 

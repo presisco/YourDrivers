@@ -36,7 +36,8 @@
                 android:id="@+id/includeFooter"
                 layout="@layout/article_page_selection"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp" />
         </LinearLayout>
 
         <ProgressBar
@@ -52,7 +53,8 @@
             android:id="@+id/commentFrame"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/contentContainer"></FrameLayout>
+            android:layout_below="@+id/contentContainer"
+            android:layout_marginTop="8dp"></FrameLayout>
 
     </RelativeLayout>
 </ScrollView>

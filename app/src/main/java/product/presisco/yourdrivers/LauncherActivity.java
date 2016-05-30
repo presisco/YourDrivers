@@ -43,7 +43,12 @@ public class LauncherActivity extends AppCompatActivity implements AlarmTask.Act
             super.onPostExecute(aVoid);
             long end = System.currentTimeMillis();
             if (end - start < 2000) {
-                new AlarmTask().execute(2000 - (end - start));
+                new AlarmTask(new AlarmTask.Action() {
+                    @Override
+                    public void onPostExecute() {
+                        startMainActivity();
+                    }
+                }).execute(2000 - (end - start));
             } else {
                 startMainActivity();
             }

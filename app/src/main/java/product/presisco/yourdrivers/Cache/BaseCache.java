@@ -31,7 +31,7 @@ public abstract class BaseCache<T> {
         keys = _keys;
         workspace = new String[keys.length];
         table_name = _tablename;
-        String sql_create = "create table # if not exists ( $ );";
+        String sql_create = "create table if not exists # ( $ );";
         sql_create = sql_create.replace("#", table_name);
         sql_create = sql_create.replace("$", genKeySet());
         dbHelper.getWritableDatabase().execSQL(sql_create);
@@ -54,11 +54,12 @@ public abstract class BaseCache<T> {
     }
 
     private String genKeySet() {
+        String[] columns = new String[keys.length];
         for (int i = 0; i < keys.length; ++i) {
-            keys[i].concat(" text");
+            columns[i] = keys[i] + " text";
         }
-        keys[0].concat(" primary key");
-        return TextUtils.join(SQL_SEPARATOR, keys);
+        columns[0] += " PRIMARY KEY";
+        return TextUtils.join(SQL_SEPARATOR, columns);
     }
 
     public boolean have(String filter) {
