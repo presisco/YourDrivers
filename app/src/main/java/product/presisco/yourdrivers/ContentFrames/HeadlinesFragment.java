@@ -3,6 +3,7 @@ package product.presisco.yourdrivers.ContentFrames;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -22,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import product.presisco.yourdrivers.Article.ArticleActivity;
+import product.presisco.yourdrivers.Cache.HeadlineCache;
 import product.presisco.yourdrivers.DataModel.Category;
 import product.presisco.yourdrivers.DataModel.Headline;
 import product.presisco.yourdrivers.Network.Task.ExtendedRequest;
@@ -107,6 +109,7 @@ public class HeadlinesFragment extends Fragment {
                 new OnAppendListener());
         mHeadlinesListAdapter.setDataSrc(mHeadlines);
         mArticleList.setAdapter(mHeadlinesListAdapter);
+        mHeadlines.addAll(HeadlineCache.getInstance(getActivity()).getAll());
 
         mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.mainSwipeRefresh);
         mSwipeRefreshLayout.setColorSchemeResources(R.color.material_light_blue_500, R.color.material_red_500);
@@ -141,6 +144,13 @@ public class HeadlinesFragment extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
+        new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(Void... params) {
+                HeadlineCache.getInstance(getActivity()).putAll(mHeadlines);
+                return null;
+            }
+        }.execute();
         Log.d(TAG, "onPause");
     }
 
@@ -195,7 +205,6 @@ public class HeadlinesFragment extends Fragment {
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
     }
 

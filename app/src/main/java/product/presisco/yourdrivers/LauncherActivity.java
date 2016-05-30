@@ -5,34 +5,49 @@ import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
+import product.presisco.yourdrivers.Cache.HeadlineCache;
 import product.presisco.yourdrivers.Network.VolleyPlusRes;
+import product.presisco.yourdrivers.Utils.AlarmTask;
 
-public class LauncherActivity extends AppCompatActivity {
+public class LauncherActivity extends AppCompatActivity implements AlarmTask.Action {
+    long start;
+
+    @Override
+    public void onPostExecute() {
+        startMainActivity();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        start = System.currentTimeMillis();
         setContentView(R.layout.activity_launcher);
-        new WasteofTime().execute();
+        VolleyPlusRes.init(getApplicationContext());
+        new LoadCache().execute();
     }
 
-    private class WasteofTime extends AsyncTask<Void, Void, Void> {
+    private void startMainActivity() {
+        startActivity(new Intent(LauncherActivity.this, MainActivity.class));
+        finish();
+    }
+
+    private class LoadCache extends AsyncTask<Void, Void, Void> {
         @Override
         protected Void doInBackground(Void... params) {
-            try {
-                Thread.sleep(2000);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            VolleyPlusRes.init(getApplicationContext());
+            HeadlineCache.getInstance(getApplicationContext()).fillCacheFromDisk();
             return null;
         }
 
         @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
-            startActivity(new Intent(LauncherActivity.this, MainActivity.class));
-            finish();
+            long end = System.currentTimeMillis();
+            if (end - start < 2000) {
+                new AlarmTask().execute(2000 - (end - start));
+            } else {
+                startMainActivity();
+            }
         }
     }
+
 }
