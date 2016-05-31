@@ -24,10 +24,8 @@ public class ArticleContentAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     private static final String TAG = ArticleContentAdapter.class.getSimpleName();
 
     private static final int VIEWTYPE_UNKNOWN = -1;
-    private static final int VIEWTYPE_TITLE = 0;
     private static final int VIEWTYPE_TEXT = 1;
     private static final int VIEWTYPE_IMAGES = 2;
-    private static final int VIEWTYPE_FOOTER = 3;
     private Article mArticle;
     private Context mContext;
 
@@ -45,7 +43,7 @@ public class ArticleContentAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     public int getItemViewType(int position) {
         if (mArticle.contents.get(position).type == Article.Text.TAG) {
             return VIEWTYPE_TEXT;
-        } else if (mArticle.contents.get(position).type == Article.Images.TAG) {
+        } else if (mArticle.contents.get(position).type == Article.Image.TAG) {
             return VIEWTYPE_IMAGES;
         } else {
             return VIEWTYPE_UNKNOWN;
@@ -59,14 +57,14 @@ public class ArticleContentAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        LayoutInflater li = LayoutInflater.from(mContext);
+        LayoutInflater li = LayoutInflater.from(parent.getContext());
         RecyclerView.ViewHolder vh = null;
         switch (viewType) {
             case VIEWTYPE_TEXT:
                 vh = new TextHolder(li.inflate(R.layout.article_content_text, parent, false));
                 break;
             case VIEWTYPE_IMAGES:
-                vh = new ImagesHolder(li.inflate(R.layout.article_content_images, parent, false));
+                vh = new ImageHolder(li.inflate(R.layout.article_content_image, parent, false));
                 break;
             default:
                 Log.d(TAG, "unrecognized viewtype:" + viewType);
@@ -80,27 +78,12 @@ public class ArticleContentAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             TextHolder textHolder = (TextHolder) holder;
             Article.Text text = (Article.Text) mArticle.contents.get(position);
             textHolder.content.setText(Html.fromHtml(text.text));
-        } else if (holder instanceof ImagesHolder) {
-            ImagesHolder imagesHolder = (ImagesHolder) holder;
-            Article.Images images = (Article.Images) mArticle.contents.get(position);
-            if (imagesHolder.imagesContainer.getChildCount() < images.images.length) {
-                for (int i = imagesHolder.imagesContainer.getChildCount(); i < images.images.length; ++i) {
-                    ImageView imageView = new ImageView(mContext);
-                    imageView.setAdjustViewBounds(true);
-                    imageView.setScaleType(ImageView.ScaleType.FIT_XY);
-                    imagesHolder.imagesContainer.addView(imageView, i,
-                            new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
-                                    LinearLayout.LayoutParams.MATCH_PARENT));
-                }
-            } else {
-                imagesHolder.imagesContainer.removeViews(images.images.length,
-                        imagesHolder.imagesContainer.getChildCount() - images.images.length);
-            }
-            for (int i = 0; i < imagesHolder.imagesContainer.getChildCount(); ++i) {
-                VolleyPlusRes.getImageLoader().get(images.images[i],
-                        ImageLoader.getImageListener((ImageView) imagesHolder.imagesContainer.getChildAt(i),
-                                R.drawable.empty_photo, R.drawable.error_image));
-            }
+        } else if (holder instanceof ImageHolder) {
+            ImageHolder imageHolder = (ImageHolder) holder;
+            Article.Image image = (Article.Image) mArticle.contents.get(position);
+            VolleyPlusRes.getImageLoader().get(image.img_link,
+                    ImageLoader.getImageListener(imageHolder.imageView,
+                            R.drawable.empty_photo, R.drawable.error_image));
         }
     }
 
@@ -117,12 +100,12 @@ public class ArticleContentAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         }
     }
 
-    private class ImagesHolder extends RecyclerView.ViewHolder {
-        final LinearLayout imagesContainer;
+    private class ImageHolder extends RecyclerView.ViewHolder {
+        final ImageView imageView;
 
-        public ImagesHolder(View itemView) {
+        public ImageHolder(View itemView) {
             super(itemView);
-            imagesContainer = (LinearLayout) itemView.findViewById(R.id.imagesContainer);
+            imageView = (ImageView) itemView.findViewById(R.id.imageView);
         }
     }
 }

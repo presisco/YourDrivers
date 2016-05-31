@@ -46,35 +46,18 @@ public class ArticleRequest extends ExtendedRequest<Article> {
 
     private void addArticleContent(Article art, Element src) {
         Elements contentEles = src.children();
-        List<String> images = new ArrayList<>();
-        boolean isMergingImgs = false;
         String textBuff = "";
         for (Element ele : contentEles) {
             switch (ele.tagName()) {
                 case "p":
                     if (ele.hasAttr("align")) {
-                        if (!isMergingImgs) {
+                        if (textBuff != "") {
                             art.contents.add(new Article.Text(textBuff));
-                            isMergingImgs = true;
-                        }
-                        images.add(ele.getElementsByTag("img").first().attr("src"));
-                        String text = ele.text();
-                        if (ele.text() != "") {
-                            art.contents.add(new Article.Images(images.toArray(new String[0])));
-                            images.clear();
-                            isMergingImgs = false;
                             textBuff = "";
-                            art.contents.add(new Article.Text(text));
                         }
+                        art.contents.add(new Article.Image(ele.getElementsByTag("img").first().attr("src")));
                     } else {
-                        if (isMergingImgs) {
-                            art.contents.add(new Article.Images(images.toArray(new String[0])));
-                            images.clear();
-                            isMergingImgs = false;
-                            textBuff = ele.text();
-                        } else {
-                            textBuff = textBuff + ele.toString();
-                        }
+                        textBuff += ele.toString();
                     }
                     break;
                 case "div":
@@ -89,14 +72,8 @@ public class ArticleRequest extends ExtendedRequest<Article> {
                     break;
             }
         }
-        if (isMergingImgs) {
-            art.contents.add(new Article.Images(images.toArray(new String[0])));
-            images.clear();
-        } else {
+        if (textBuff != "") {
             art.contents.add(new Article.Text(textBuff));
         }
-        images = null;
-        textBuff = null;
     }
-
 }

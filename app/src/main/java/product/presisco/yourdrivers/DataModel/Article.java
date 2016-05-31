@@ -1,6 +1,5 @@
 package product.presisco.yourdrivers.DataModel;
 
-import java.io.StringBufferInputStream;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -39,29 +38,21 @@ public class Article {
         public static final String TAG = Text.class.getSimpleName();
 
         public String text = "";
-        public boolean strong = false;
-        public boolean focused = false;
 
         public Text(String t) {
-            this(t, false, false);
-        }
-
-        public Text(String t, boolean s, boolean f) {
             super(TAG);
             text = t;
-            strong = s;
-            focused = f;
         }
     }
 
-    public static class Images extends Node {
-        public static final String TAG = Images.class.getSimpleName();
+    public static class Image extends Node {
+        public static final String TAG = Image.class.getSimpleName();
 
-        public String[] images = null;
+        public String img_link = null;
 
-        public Images(String[] urls) {
+        public Image(String url) {
             super(TAG);
-            images = urls;
+            img_link = url;
         }
     }
 

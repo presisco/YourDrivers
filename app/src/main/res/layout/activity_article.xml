@@ -1,60 +1,70 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="false"
-    android:nestedScrollingEnabled="true"
-    android:paddingLeft="4dp"
-    android:paddingRight="4dp"
-    android:scrollIndicators="right"
     tools:context="product.presisco.yourdrivers.Article.ArticleActivity">
 
-    <RelativeLayout
+    <ScrollView
+
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:fillViewport="false"
+        android:nestedScrollingEnabled="false"
+        android:paddingLeft="4dp"
+        android:paddingRight="4dp"
+        android:scrollIndicators="right">
 
-        <include
-            android:id="@+id/includeHeader"
-            layout="@layout/article_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-
-        <LinearLayout
-            android:id="@+id/contentContainer"
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_below="@+id/includeHeader"
-            android:orientation="vertical">
+            android:layout_height="wrap_content">
 
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/contentList"
+            <LinearLayout
+                android:id="@+id/contentContainer"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="match_parent"
+                android:layout_alignParentTop="true"
+                android:orientation="vertical">
 
-            <include
-                android:id="@+id/includeFooter"
-                layout="@layout/article_page_selection"
+                <include
+                    android:id="@+id/includeHeader"
+                    layout="@layout/article_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/contentList"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:focusable="false"
+                    android:nestedScrollingEnabled="false"
+                    android:touchscreenBlocksFocus="true" />
+
+                <include
+                    android:id="@+id/includeFooter"
+                    layout="@layout/article_page_selection"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp" />
+
+            </LinearLayout>
+
+            <ProgressBar
+                android:id="@+id/progressBar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="100dp"
+                android:indeterminate="false" />
+
+            <FrameLayout
+                android:id="@+id/commentFrame"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp" />
-        </LinearLayout>
+                android:layout_below="@+id/contentContainer"
+                android:layout_marginTop="8dp"></FrameLayout>
 
-        <ProgressBar
-            android:id="@+id/progressBar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/includeHeader"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="28dp"
-            android:indeterminate="false" />
-
-        <FrameLayout
-            android:id="@+id/commentFrame"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/contentContainer"
-            android:layout_marginTop="8dp"></FrameLayout>
-
-    </RelativeLayout>
-</ScrollView>
+        </RelativeLayout>
+    </ScrollView>
+</FrameLayout>
